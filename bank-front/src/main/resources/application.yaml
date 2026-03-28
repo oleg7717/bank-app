@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: bank-front
+#  datasource:
+#    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=bank-front
+#    username: postgres
+#    password: password
+#    driver-class-name: org.postgresql.Driver
+#  jpa:
+#    show-sql: true
+#    hibernate:
+#      ddl-auto: none
+#  sql:
+#    init:
+#      mode: always
