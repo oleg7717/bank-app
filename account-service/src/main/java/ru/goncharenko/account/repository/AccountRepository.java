@@ -16,5 +16,10 @@ public interface AccountRepository extends ReactiveCrudRepository<Account, Long>
 			"surname = COALESCE(:surname, surname), " +
 			"birthdate = COALESCE(:birthdate, birthdate) " +
 			"WHERE login = :login")
-	Mono<Integer> updatePartial(String firstname, String surname, LocalDate birthdate, String login);
+	Mono<Integer> updateAccount(String firstname, String surname, LocalDate birthdate, String login);
+
+	@Modifying
+	@Query("UPDATE accounts SET balance = COALESCE(:balance, balance) " +
+			"WHERE login = :login")
+	Mono<Integer> updateBalance(Double balance, String login);
 }

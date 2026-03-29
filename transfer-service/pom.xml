@@ -12,6 +12,12 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>ru.goncharenko</groupId>
+            <artifactId>bank-client</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+
         <!-- Spring Boot Framework -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -159,53 +165,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.openapitools</groupId>
-                <artifactId>openapi-generator-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>${project.parent.basedir}/api-spec.yaml</inputSpec>
-                            <generatorName>spring</generatorName>
-                            <apiPackage>ru.goncharenko.payment.generated.controller</apiPackage>
-                            <invokerPackage>ru.goncharenko.payment.generated</invokerPackage>
-                            <modelPackage>ru.goncharenko.payment.generated.model</modelPackage>
-
-                            <!-- Параметры для пропуска генерации тестов -->
-                            <generateApiTests>false</generateApiTests>
-                            <generateModelTests>false</generateModelTests>
-
-                            <!-- Также можно пропустить документацию (опционально) -->
-                            <generateApiDocumentation>false</generateApiDocumentation>
-                            <generateModelDocumentation>false</generateModelDocumentation>
-
-                            <configOptions>
-                                <library>spring-boot</library>
-                                <reactive>true</reactive>
-                                <!-- Включаем поддержку пакетов Jakarta EE вместо javax -->
-                                <useJakartaEe>true</useJakartaEe>
-                                <useSpringBoot3>true</useSpringBoot3>
-                                <!-- Отключаем использование библиотеки OpenAPI Jackson Nullable -->
-                                <openApiNullable>false</openApiNullable>
-                            </configOptions>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.3.0</version>
-                <configuration>
-                    <excludes>
-                        <!-- Исключить сгенерированные классы из JAR (используются модифицированные классы), так как реализация генерированных классов это нечто-->
-                        <exclude>ru/goncharenko/payment/generated/**</exclude>
-                    </excludes>
-                </configuration>
             </plugin>
         </plugins>
     </build>

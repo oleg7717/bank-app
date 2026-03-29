@@ -1,4 +1,4 @@
-package ru.goncharenko.account.model.dto;
+package ru.goncharenko.bankclient.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,8 +11,10 @@ import java.time.LocalDate;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountModifyDto {
+public class AccountDto {
+	private String login;
 	private String firstname;
 	private String surname;
 	private LocalDate birthdate;
+	private Double balance;
 }

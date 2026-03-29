@@ -12,6 +12,12 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>ru.goncharenko</groupId>
+            <artifactId>bank-client</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+
         <!-- Spring Boot Framework -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

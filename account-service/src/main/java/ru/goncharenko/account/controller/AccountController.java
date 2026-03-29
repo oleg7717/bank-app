@@ -10,31 +10,31 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.goncharenko.account.model.dto.AccountDto;
-import ru.goncharenko.account.model.dto.AccountModifyDto;
 import ru.goncharenko.account.service.AccountService;
+import ru.goncharenko.bankclient.model.AccountDto;
+import ru.goncharenko.bankclient.model.AccountModifyDto;
 
-import static ru.goncharenko.account.controller.endpoint.Endpoints.*;
+import static ru.goncharenko.bankclient.endpoint.Endpoints.*;
 
 @RestController
-@RequestMapping(BASE_URL)
+@RequestMapping(ACCOUNT_BASE_URL)
 @RequiredArgsConstructor
 public class AccountController {
-	private final AccountService service;
+	private final AccountService accountService;
 
 	@GetMapping
 	public Mono<ResponseEntity<AccountDto>> getAccount() {
-		return service.getAccount();
+		return accountService.getAccount();
 	}
 
 	@PutMapping(path = "/{login}")
-	public Mono<ResponseEntity<AccountDto>> editAccount(@RequestBody Mono<AccountModifyDto> accountDto,
+	public Mono<ResponseEntity<AccountDto>> modifyAccount(@RequestBody Mono<AccountModifyDto> accountDto,
 	                                                    @PathVariable("login") String login) {
-		return service.modifyAccount(accountDto, login);
+		return accountService.modifyAccount(accountDto, login);
 	}
 
 	@GetMapping(TRANSFER_LIST)
 	public Flux<AccountDto> getTransferAccounts() {
-		return service.getAllAccounts();
+		return accountService.getAllAccounts();
 	}
 }

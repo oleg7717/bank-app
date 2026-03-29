@@ -1,6 +1,5 @@
 package ru.goncharenko.bankfront.controller;
 
-import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -8,12 +7,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import ru.goncharenko.bankfront.model.CashAction;
+import ru.goncharenko.bankclient.enums.CashAction;
 import ru.goncharenko.bankfront.service.AccountService;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 /**
  * Контроллер main.html.
@@ -57,11 +54,8 @@ public class FrontController {
 	 * 3. Текущего пользователя можно получить из контекста Security
 	 */
 	@GetMapping("/account")
-	public ModelAndView getAccount(Model model) {
-		// TODO: Заменить на то, что описано в комментарии к методу
-		accountService.getAccount();
-
-		return fillModel();
+	public ModelAndView getAccount() {
+		return accountService.getAccount();
 	}
 
 	/**

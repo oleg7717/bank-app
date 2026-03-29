@@ -10,9 +10,9 @@ import reactor.core.publisher.Mono;
 import ru.goncharenko.account.exception.NotFoundException;
 import ru.goncharenko.account.exception.ValidationException;
 import ru.goncharenko.account.mapper.AccountMapper;
-import ru.goncharenko.account.model.dto.AccountDto;
-import ru.goncharenko.account.model.dto.AccountModifyDto;
 import ru.goncharenko.account.repository.AccountRepository;
+import ru.goncharenko.bankclient.model.AccountDto;
+import ru.goncharenko.bankclient.model.AccountModifyDto;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -52,7 +52,7 @@ public class AccountService {
 								));
 							}
 
-							return repository.updatePartial(
+							return repository.updateAccount(
 											accountModify.getFirstname(),
 											accountModify.getSurname(),
 											accountModify.getBirthdate(),
