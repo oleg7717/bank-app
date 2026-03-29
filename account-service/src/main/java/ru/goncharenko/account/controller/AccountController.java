@@ -3,7 +3,9 @@ package ru.goncharenko.account.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
@@ -25,9 +27,10 @@ public class AccountController {
 		return service.getAccount();
 	}
 
-	@PutMapping
-	public Mono<ResponseEntity<AccountDto>> editAccount(Mono<AccountModifyDto> accountDto) {
-		return service.modifyAccount(accountDto);
+	@PutMapping(path = "/{login}")
+	public Mono<ResponseEntity<AccountDto>> editAccount(@RequestBody Mono<AccountModifyDto> accountDto,
+	                                                    @PathVariable("login") String login) {
+		return service.modifyAccount(accountDto, login);
 	}
 
 	@GetMapping(TRANSFER_LIST)

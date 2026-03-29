@@ -7,72 +7,72 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import ru.goncharenko.account.exception.NotFoundException;
+import ru.goncharenko.account.exception.ValidationException;
 import ru.goncharenko.account.mapper.AccountMapper;
 import ru.goncharenko.account.model.dto.AccountDto;
 import ru.goncharenko.account.model.dto.AccountModifyDto;
 import ru.goncharenko.account.repository.AccountRepository;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class AccountService {
 	private final AccountRepository repository;
-	private final AccountMapper mapper;
-	String login = "o.goncharenko";
+	private final AccountMapper accountMapper;
+	String myLogin = "o.goncharenko";
 
 	public Mono<ResponseEntity<AccountDto>> getAccount() {
-		return repository.findByLogin(login)
-				.map(mapper::mapToDto)
+		return repository.findByLogin(myLogin)
+				.map(accountMapper::mapToDto)
 				.flatMap(account -> Mono.just(ResponseEntity.ok()
 						.body(account)))
 				.switchIfEmpty(
-						Mono.error(new ResponseStatusException(
-								HttpStatus.NOT_FOUND, String.format("У пользователя %s нет аккаунта в банке ", login)
+						Mono.error(new NotFoundException(
+								String.format("У пользователя %s нет аккаунта в банке ", myLogin)
 						))
 				);
 	}
 
-	public Mono<ResponseEntity<AccountDto>> modifyAccount(Mono<AccountModifyDto> accountModifyDto) {
-		return accountModifyDto.map(mapper::mapToEntity)
-				.flatMap(account -> repository.save(account)
-						.map(mapper::mapToDto)
-						.flatMap(accountDto -> Mono.just(ResponseEntity.ok()
-								.body(accountDto)))
-				);
+	public Mono<ResponseEntity<AccountDto>> modifyAccount(Mono<AccountModifyDto> accountModifyDto, String login) {
+		return repository.findByLogin(login).flatMap(account ->
+				accountModifyDto.flatMap(accountModify -> {
+							if (!Objects.equals(account.getLogin(), login)) {
+								return Mono.error(new ResponseStatusException(
+										HttpStatus.BAD_REQUEST,
+										String.format("Пользователь %s не может менять данные другого аккаунта", login)
+								));
+							}
+							if (accountModify.getBirthdate().until(LocalDate.now(), ChronoUnit.YEARS) < 18) {
+								return Mono.error(new ValidationException(
+										"Пользователь не может быть младше 18 лет"
+								));
+							}
+
+							return repository.updatePartial(
+											accountModify.getFirstname(),
+											accountModify.getSurname(),
+											accountModify.getBirthdate(),
+											login)
+									.flatMap(updated -> repository.findByLogin(login)
+											.map(accountMapper::mapToDto)
+											.flatMap(accountDto -> Mono.just(ResponseEntity.ok()
+													.body(accountDto)))
+									);
+						}
+
+				)
+		).switchIfEmpty(
+				Mono.error(new NotFoundException(
+						String.format("У пользователя %s нет аккаунта в банке ", login)
+				))
+		);
 	}
 
 	public Flux<AccountDto> getAllAccounts() {
-		return repository.findAll().map(mapper::mapToDto);
+		return repository.findAll().map(accountMapper::mapToDto);
 	}
-
-/*	@Transactional
-	public Mono<ResponseEntity<PaymentStatus>> makePayment(Mono<Payment> payment) {
-		return payment.flatMap(pay -> {
-			String userName = pay.getUserName();
-			Double amount = pay.getOrderAmount() == null ? 0 : pay.getOrderAmount();
-			return repository.findByUserName(userName).flatMap(account -> {
-						Double balance = account.getBalance();
-						if (balance < amount) {
-							return Mono.just(ResponseEntity.ok()
-									.body(new PaymentStatus()
-											.code(HttpStatus.PAYMENT_REQUIRED.value())
-											.message("Недостаточно средств на счету")
-											.processed(false)));
-						}
-						account.setBalance(BigDecimal.valueOf(balance)
-								.subtract(BigDecimal.valueOf(amount))
-								.setScale(2, RoundingMode.HALF_UP)
-								.doubleValue()
-						);
-						return repository.save(account)
-								.map(savedAccount -> ResponseEntity.ok()
-										.body(new PaymentStatus()
-												.code(HttpStatus.OK.value())
-												.message("Платёж совершён")
-												.processed(true)));
-					})
-					.switchIfEmpty(Mono.error(new ResponseStatusException(
-							HttpStatus.NOT_FOUND, String.format("У пользователя %s нет счета в банке ", userName)
-					)));
-		});
-	}*/
 }
