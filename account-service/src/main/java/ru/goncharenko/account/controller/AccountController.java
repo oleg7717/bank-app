@@ -33,7 +33,7 @@ public class AccountController {
 		return accountService.modifyAccount(accountDto, login);
 	}
 
-	@GetMapping(TRANSFER_LIST)
+	@GetMapping(ACCOUNT_LIST)
 	public Flux<AccountDto> getTransferAccounts() {
 		return accountService.getAllAccounts();
 	}

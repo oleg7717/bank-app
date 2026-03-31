@@ -1,4 +1,4 @@
-package ru.goncharenko.bankclient.model;
+package ru.goncharenko.bankclient.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +9,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BalanceDto {
-	private Double amount;
+public class SuccessResponse {
+	private Integer code;
+	private String message;
 }

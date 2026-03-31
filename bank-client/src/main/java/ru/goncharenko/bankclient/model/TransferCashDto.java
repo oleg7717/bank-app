@@ -9,6 +9,8 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BalanceDto {
+public class TransferCashDto {
+	private String fromAccount;
+	private String toAccount;
 	private Double amount;
 }

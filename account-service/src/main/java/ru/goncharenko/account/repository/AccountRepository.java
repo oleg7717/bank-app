@@ -22,4 +22,14 @@ public interface AccountRepository extends ReactiveCrudRepository<Account, Long>
 	@Query("UPDATE accounts SET balance = COALESCE(:balance, balance) " +
 			"WHERE login = :login")
 	Mono<Integer> updateBalance(Double balance, String login);
+
+	@Modifying
+	@Query("UPDATE accounts SET balance = balance - :balance " +
+			"WHERE login = :fromLogin")
+	Mono<Integer> transferCashFrom(Double balance, String fromLogin);
+
+	@Modifying
+	@Query("UPDATE accounts SET balance = balance + :balance " +
+			"WHERE login = :toLogin")
+	Mono<Integer> transferCashTo(Double balance, String toLogin);
 }

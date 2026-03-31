@@ -20,7 +20,7 @@ public class CashController {
 	private final CashService cashService;
 
 	@PostMapping(CASH)
-	public Mono<ResponseEntity<BalanceDto>> depositOrWithdrawMoney(@RequestBody Mono<DepositOrWithdrawDto> depositOrWithdrawDto) {
+	public Mono<ResponseEntity<BalanceDto>> depositOrWithdrawCash(@RequestBody Mono<DepositOrWithdrawDto> depositOrWithdrawDto) {
 		return cashService.depositOrWithdraw(depositOrWithdrawDto);
 	}
 }

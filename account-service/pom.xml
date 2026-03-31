@@ -160,7 +160,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>ru.goncharenko.payment.PaymentApplication</mainClass>
+                    <mainClass>ru.goncharenko.account.AccountServiceApplication</mainClass>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

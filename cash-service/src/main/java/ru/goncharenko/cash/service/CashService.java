@@ -1,4 +1,4 @@
-package ru.goncharenko.account.service;
+package ru.goncharenko.cash.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

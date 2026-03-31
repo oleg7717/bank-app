@@ -1,4 +1,4 @@
-package ru.goncharenko.account.config;
+package ru.goncharenko.cash.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
