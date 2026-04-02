@@ -2,7 +2,7 @@ services:
   #### Infrastructure ####
   postgres:
     image: postgres:15-alpine
-    container_name: postgres_market_db
+    container_name: postgres_bank_db
     restart: always
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -43,7 +43,7 @@ services:
       - "8090:8090"
     command: ["start-dev"]
     depends_on:
-      postgres:
+      keycloak-postgres:
         condition: service_started
     networks:
       - app-network
@@ -65,6 +65,59 @@ services:
       security-network:
         aliases:
           - keycloak-postgres
+
+#### Services ####
+  bank-front:
+    build: ./bank-front
+    image: online-store:latest
+    container_name: bank-front
+    restart: no
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+      # Настройки клиентского сервиса для получения токенов из keycloak
+      #SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_MARKET_CLIENT_ID: ${MARKET_CLIENT_ID}
+      #SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_MARKET_CLIENT_SECRET: ${MARKET_CLIENT_SECRET}
+      #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8090/realms/master
+    depends_on:
+      account-service:
+        condition: service_started
+      postgres:
+        condition: service_started
+    networks:
+      - app-network
+
+  account-service:
+    build: ./account-service
+    image: account-service:latest
+    container_name: account-service
+    restart: no
+    ports:
+      - "8081:8081"
+      - "5006:5006"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006
+      # Liquibase переменные
+      SPRING_LIQUIBASE_URL: jdbc:postgresql://postgres:5432/postgres?currentSchema=account
+      SPRING_LIQUIBASE_USERNAME: ${POSTGRES_USER}
+      SPRING_LIQUIBASE_PASSWORD: ${POSTGRES_PASSWORD}
+      # Реактивное подключение к PostgreSQL
+      SPRING_R2DBC_URL: r2dbc:postgresql://postgres:5432/postgres?currentSchema=account
+      SPRING_R2DBC_USERNAME: ${POSTGRES_USER}
+      SPRING_R2DBC_PASSWORD: ${POSTGRES_PASSWORD}
+      # Настройки клиентского сервиса для получения токенов из keycloak
+      #SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_MARKET_CLIENT_ID: ${MARKET_CLIENT_ID}
+      #SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_MARKET_CLIENT_SECRET: ${MARKET_CLIENT_SECRET}
+      #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8090/realms/master
+    depends_on:
+      postgres:
+        condition: service_started
+    networks:
+      - app-network
 
 #### Networks ####
 networks:

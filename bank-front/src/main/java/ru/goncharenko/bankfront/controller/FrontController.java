@@ -8,9 +8,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.goncharenko.bankclient.enums.CashAction;
+import ru.goncharenko.bankclient.model.AccountDto;
+import ru.goncharenko.bankclient.model.AccountListDTO;
 import ru.goncharenko.bankfront.service.AccountService;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Контроллер main.html.
@@ -55,7 +58,9 @@ public class FrontController {
 	 */
 	@GetMapping("/account")
 	public ModelAndView getAccount() {
-		return accountService.getAccount();
+		AccountDto account = accountService.getAccount();
+		List<AccountListDTO> accountList = accountService.getAccountsForTransfer();
+		return accountService.fillModel(account, accountList);
 	}
 
 	/**

@@ -13,6 +13,7 @@ import ru.goncharenko.account.exception.ValidationException;
 import ru.goncharenko.account.mapper.AccountMapper;
 import ru.goncharenko.account.repository.AccountRepository;
 import ru.goncharenko.bankclient.model.AccountDto;
+import ru.goncharenko.bankclient.model.AccountListDTO;
 import ru.goncharenko.bankclient.model.AccountModifyDto;
 
 import java.time.LocalDate;
@@ -74,7 +75,7 @@ public class AccountService {
 		);
 	}
 
-	public Flux<AccountDto> getAllAccounts() {
-		return repository.findAll().map(accountMapper::mapToDto);
+	public Flux<AccountListDTO> getAllAccounts() {
+		return repository.findAll().map(accountMapper::mapToList);
 	}
 }
