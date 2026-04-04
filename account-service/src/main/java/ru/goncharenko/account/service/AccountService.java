@@ -8,12 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.goncharenko.account.exception.NotFoundException;
-import ru.goncharenko.account.exception.ValidationException;
+import ru.goncharenko.bankclient.exception.NotFoundException;
+import ru.goncharenko.bankclient.exception.ValidationException;
 import ru.goncharenko.account.mapper.AccountMapper;
 import ru.goncharenko.account.repository.AccountRepository;
 import ru.goncharenko.bankclient.model.AccountDto;
-import ru.goncharenko.bankclient.model.AccountListDTO;
+import ru.goncharenko.bankclient.model.AccountListDto;
 import ru.goncharenko.bankclient.model.AccountModifyDto;
 
 import java.time.LocalDate;
@@ -75,7 +75,7 @@ public class AccountService {
 		);
 	}
 
-	public Flux<AccountListDTO> getAllAccounts() {
+	public Flux<AccountListDto> getAllAccounts() {
 		return repository.findAll().map(accountMapper::mapToList);
 	}
 }

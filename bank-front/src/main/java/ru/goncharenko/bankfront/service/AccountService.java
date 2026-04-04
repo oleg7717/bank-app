@@ -1,32 +1,38 @@
 package ru.goncharenko.bankfront.service;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.servlet.ModelAndView;
+import ru.goncharenko.bankclient.config.RestClientService;
 import ru.goncharenko.bankclient.model.AccountDto;
-import ru.goncharenko.bankclient.model.AccountListDTO;
+import ru.goncharenko.bankclient.model.AccountListDto;
+import ru.goncharenko.bankclient.model.AccountModifyDto;
+import ru.goncharenko.bankclient.exception.ValidationException;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static ru.goncharenko.bankclient.endpoint.Endpoints.ACCOUNT_BASE_URL;
-import static ru.goncharenko.bankclient.endpoint.Endpoints.ACCOUNT_LIST;
+import static ru.goncharenko.bankclient.endpoint.Endpoints.*;
 
 @Service
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class AccountService {
-	private final RestClient restClient;
+	private final String username = "o.goncharenko";
+	private final String accountBaseUrl;
+
+	private final RestClientService restClient;
+
+	public AccountService(@Value("${application.service.account.url:http://localhost:8081}") String accountUrl, final RestClientService restClient) {
+		this.accountBaseUrl = accountUrl + ACCOUNT_BASE_URL;
+		this.restClient = restClient;
+	}
 
 	public AccountDto getAccount() {
 		try {
-			return restClient.get()
-					.uri(ACCOUNT_BASE_URL)
-					.retrieve()
-					.onStatus(HttpStatusCode::is4xxClientError, (request, response) -> System.err.println("Custom 4xx handler: " + response.getStatusCode()))
-					.body(AccountDto.class);
+			return restClient.getForObject(accountBaseUrl, AccountDto.class);
 		} catch (RestClientException e) {
 			System.err.println("RestClient error: " + e.getMessage());
 
@@ -34,14 +40,9 @@ public class AccountService {
 		}
 	}
 
-	public List<AccountListDTO> getAccountsForTransfer() {
+	public List<AccountListDto> getAccountsForTransfer() {
 		try {
-			return restClient.get()
-					.uri(ACCOUNT_BASE_URL + ACCOUNT_LIST)
-					.retrieve()
-					.onStatus(HttpStatusCode::is4xxClientError, (request, response) -> System.err.println("Custom 4xx handler: " + response.getStatusCode()))
-					.body(new ParameterizedTypeReference<>() {
-					});
+			return restClient.getForObject(accountBaseUrl + ACCOUNT_LIST, new ParameterizedTypeReference<>() {});
 		} catch (RestClientException e) {
 			// Обработка ошибок RestClient
 			System.err.println("RestClient error: " + e.getMessage());
@@ -50,19 +51,44 @@ public class AccountService {
 		}
 	}
 
-	public ModelAndView fillModel(AccountDto account, List<AccountListDTO> ModelAccountDTO) {
+	public AccountDto modifyAccount(String name, LocalDate birthdate) {
+		if (birthdate.until(LocalDate.now(), ChronoUnit.YEARS) < 18) {
+			throw new ValidationException("Пользователь не может быть младше 18 лет");
+		}
+		try {
+			String[] usernameArray = name.split(" ");
+			String surname = usernameArray[0];
+			String firstname = usernameArray[1];
+			AccountModifyDto modifyDto = new AccountModifyDto(firstname, surname, birthdate);
+			return restClient.putForObject(accountBaseUrl + "/" + username, modifyDto, AccountDto.class);
+		} catch (RestClientException e) {
+			// Обработка ошибок RestClient
+			System.err.println("RestClient error: " + e.getMessage());
+
+			throw e;
+		}
+	}
+
+	public ModelAndView fillModel(AccountDto account, List<AccountListDto> accountList) {
 		ModelAndView model = new ModelAndView("main");
-		model.addObject("name", account.getFirstname() + " " + account.getSurname());
-		model.addObject("birthdate", account.getBirthdate());
-		model.addObject("sum", account.getBalance());
-		model.addObject("accounts", ModelAccountDTO);
+
+		if (account != null) {
+			model.addObject("name", account.getSurname() + " " + account.getFirstname());
+			model.addObject("birthdate", account.getBirthdate());
+			model.addObject("sum", account.getBalance());
+		}
+
+		if (accountList != null) {
+			model.addObject("accounts", accountList);
+		}
 
 		return model;
 	}
 
-	private ModelAndView fillModelWithError(String error) {
-		ModelAndView model = new ModelAndView("main");
-		model.addObject("errors", List.of(error));
+	public ModelAndView fillModelWithError(AccountDto account, List<AccountListDto> accountList, List<String> errors) {
+		ModelAndView model = fillModel(account, accountList);
+//		ModelAndView model = new ModelAndView("main");
+		model.addObject("errors", errors);
 
 		return model;
 	}

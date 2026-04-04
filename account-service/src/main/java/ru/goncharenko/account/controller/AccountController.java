@@ -12,7 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.goncharenko.account.service.AccountService;
 import ru.goncharenko.bankclient.model.AccountDto;
-import ru.goncharenko.bankclient.model.AccountListDTO;
+import ru.goncharenko.bankclient.model.AccountListDto;
 import ru.goncharenko.bankclient.model.AccountModifyDto;
 
 import static ru.goncharenko.bankclient.endpoint.Endpoints.*;
@@ -35,7 +35,7 @@ public class AccountController {
 	}
 
 	@GetMapping(ACCOUNT_LIST)
-	public Flux<AccountListDTO> getTransferAccounts() {
+	public Flux<AccountListDto> getTransferAccounts() {
 		return accountService.getAllAccounts();
 	}
 }

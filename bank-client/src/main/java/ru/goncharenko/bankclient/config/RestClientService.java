@@ -1,0 +1,44 @@
+package ru.goncharenko.bankclient.config;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+
+@Service
+@ConditionalOnClass(RestClient.class)
+@RequiredArgsConstructor
+public class RestClientService {
+	private final RestClient restClient;
+
+	public <T> T getForObject(String url, Class<T> responseType) {
+		return restClient.get()
+				.uri(url)
+				.retrieve()
+				.body(responseType);
+	}
+
+	public <T> T getForObject(String url, ParameterizedTypeReference<T> responseType) {
+		return restClient.get()
+				.uri(url)
+				.retrieve()
+				.body(responseType);
+	}
+
+	public <T, R> T putForObject(String url, R requestBody, Class<T> responseType) {
+		return restClient.put()
+				.uri(url)
+				.body(requestBody)
+				.retrieve()
+				.body(responseType);
+	}
+
+	public <T, R> T putForObject(String url, R requestBody, ParameterizedTypeReference<T> responseType) {
+		return restClient.put()
+				.uri(url)
+				.body(requestBody)
+				.retrieve()
+				.body(responseType);
+	}
+}

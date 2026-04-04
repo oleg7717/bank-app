@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.goncharenko.account.exception.NotFoundException;
-import ru.goncharenko.account.exception.ValidationException;
+import ru.goncharenko.bankclient.exception.NotFoundException;
+import ru.goncharenko.bankclient.exception.ValidationException;
 import ru.goncharenko.account.response.MessageApiResponse;
 
 @RestControllerAdvice

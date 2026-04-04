@@ -6,13 +6,16 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.servlet.ModelAndView;
 import ru.goncharenko.bankclient.enums.CashAction;
 import ru.goncharenko.bankclient.model.AccountDto;
-import ru.goncharenko.bankclient.model.AccountListDTO;
+import ru.goncharenko.bankclient.model.AccountListDto;
 import ru.goncharenko.bankfront.service.AccountService;
+import ru.goncharenko.bankclient.exception.ValidationException;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -59,7 +62,7 @@ public class FrontController {
 	@GetMapping("/account")
 	public ModelAndView getAccount() {
 		AccountDto account = accountService.getAccount();
-		List<AccountListDTO> accountList = accountService.getAccountsForTransfer();
+		List<AccountListDto> accountList = accountService.getAccountsForTransfer();
 		return accountService.fillModel(account, accountList);
 	}
 
@@ -75,16 +78,38 @@ public class FrontController {
 	 * 2. birthdate - дата рождения в формате YYYY-DD-MM
 	 */
 	@PostMapping("/account")
-	public String editAccount(
-			Model model,
+	public ModelAndView editAccount(
 			@RequestParam("name") String name,
 			@RequestParam("birthdate") LocalDate birthdate
 	) {
-		// TODO: Заменить на то, что описано в комментарии к методу
-//		accountStub.setNameAndBirthdate(name, birthdate);
-//		accountStub.fillModel(model, null, null);
+		AccountDto account = null;
+		List<AccountListDto> accountList = null;
+		List<String> errors = new ArrayList<>();
+		try {
+			account = accountService.modifyAccount(name, birthdate);
+		} catch (ValidationException | RestClientException ex) {
+			errors.add(ex.getMessage());
+		}
 
-		return "main";
+		try {
+			accountList = accountService.getAccountsForTransfer();
+		} catch (RestClientException ex) {
+			errors.add(ex.getMessage());
+		}
+
+		try {
+			if (account == null) {
+				account = accountService.getAccount();
+			}
+		} catch (RestClientException ex) {
+			errors.add(ex.getMessage());
+		}
+
+		if (!errors.isEmpty()) {
+			return accountService.fillModelWithError(account, accountList, errors);
+		}
+
+		return accountService.fillModel(account, accountList);
 	}
 
 	/**
@@ -123,7 +148,6 @@ public class FrontController {
 	 */
 	@PostMapping("/transfer")
 	public String transfer(
-			Model model,
 			@RequestParam("value") int value,
 			@RequestParam("login") String login
 	) {
@@ -131,17 +155,5 @@ public class FrontController {
 //		accountStub.transfer(model, value, login);
 
 		return "main";
-	}
-
-	public ModelAndView fillModel() {
-		ModelAndView model = new ModelAndView("main");
-
-		return model;
-//		model.addAttribute("name", name);
-//		model.addAttribute("birthdate", birthdate.format(DateTimeFormatter.ISO_DATE));
-//		model.addAttribute("sum", sum);
-//		model.addAttribute("accounts", accounts);
-//		model.addObject("errors", errors);
-//		model.addObject("info", info);
 	}
 }

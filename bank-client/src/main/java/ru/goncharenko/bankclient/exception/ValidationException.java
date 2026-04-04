@@ -1,4 +1,4 @@
-package ru.goncharenko.account.exception;
+package ru.goncharenko.bankclient.exception;
 
 public class ValidationException extends RuntimeException {
 	public ValidationException(String message) {

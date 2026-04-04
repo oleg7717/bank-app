@@ -8,7 +8,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import ru.goncharenko.account.model.entity.Account;
 import ru.goncharenko.bankclient.model.AccountDto;
-import ru.goncharenko.bankclient.model.AccountListDTO;
+import ru.goncharenko.bankclient.model.AccountListDto;
 
 @Mapper(
 		nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
@@ -19,11 +19,11 @@ public interface AccountMapper {
 	AccountDto mapToDto(Account account);
 
 	@Mapping(source = ".", target = "name", qualifiedByName = "concatName")
-	AccountListDTO mapToList(Account account);
+	AccountListDto mapToList(Account account);
 
 	@Named("concatName")
 	default String concatName(Account account) {
 		if (account == null) return null;
-		return account.getFirstname() + " " + account.getSurname();
+		return account.getSurname() + " " + account.getFirstname();
 	}
 }
