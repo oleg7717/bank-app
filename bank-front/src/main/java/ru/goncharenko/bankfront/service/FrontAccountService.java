@@ -18,14 +18,13 @@ import java.util.List;
 import static ru.goncharenko.bankclient.endpoint.Endpoints.*;
 
 @Service
-//@RequiredArgsConstructor
-public class AccountService {
-	private final String username = "o.goncharenko";
+public class FrontAccountService {
+	private final String login = "o.goncharenko";
 	private final String accountBaseUrl;
 
 	private final RestClientService restClient;
 
-	public AccountService(@Value("${application.service.account.url:http://localhost:8081}") String accountUrl, final RestClientService restClient) {
+	public FrontAccountService(@Value("${application.service.account.url:http://localhost:8081}") String accountUrl, final RestClientService restClient) {
 		this.accountBaseUrl = accountUrl + ACCOUNT_BASE_URL;
 		this.restClient = restClient;
 	}
@@ -44,14 +43,13 @@ public class AccountService {
 		try {
 			return restClient.getForObject(accountBaseUrl + ACCOUNT_LIST, new ParameterizedTypeReference<>() {});
 		} catch (RestClientException e) {
-			// Обработка ошибок RestClient
 			System.err.println("RestClient error: " + e.getMessage());
 
 			throw e;
 		}
 	}
 
-	public AccountDto modifyAccount(String name, LocalDate birthdate) {
+	public void modifyAccount(String name, LocalDate birthdate) {
 		if (birthdate.until(LocalDate.now(), ChronoUnit.YEARS) < 18) {
 			throw new ValidationException("Пользователь не может быть младше 18 лет");
 		}
@@ -60,7 +58,7 @@ public class AccountService {
 			String surname = usernameArray[0];
 			String firstname = usernameArray[1];
 			AccountModifyDto modifyDto = new AccountModifyDto(firstname, surname, birthdate);
-			return restClient.putForObject(accountBaseUrl + "/" + username, modifyDto, AccountDto.class);
+			restClient.postForObject(accountBaseUrl + "/" + login, modifyDto, AccountDto.class);
 		} catch (RestClientException e) {
 			// Обработка ошибок RestClient
 			System.err.println("RestClient error: " + e.getMessage());

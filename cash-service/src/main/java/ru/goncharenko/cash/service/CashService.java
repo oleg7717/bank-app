@@ -12,6 +12,7 @@ import ru.goncharenko.bankclient.model.BalanceDto;
 import ru.goncharenko.bankclient.model.DepositOrWithdrawDto;
 
 import static ru.goncharenko.bankclient.endpoint.Endpoints.ACCOUNT_BASE_URL;
+import static ru.goncharenko.bankclient.endpoint.Endpoints.CASH;
 
 @Slf4j
 @Service
@@ -21,7 +22,7 @@ public class CashService {
 
 	public Mono<BalanceDto> depositOrWithdraw(DepositOrWithdrawDto dto) {
 		return webClient.post()
-				.uri(ACCOUNT_BASE_URL)
+				.uri(ACCOUNT_BASE_URL + CASH)
 				.bodyValue(dto)
 				.retrieve()
 				.onStatus(HttpStatusCode::is4xxClientError, (response) ->

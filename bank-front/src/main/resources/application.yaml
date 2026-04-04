@@ -21,3 +21,5 @@ application:
   service:
     account:
       url: http://localhost:8081
+    cash:
+      url: http://localhost:8082

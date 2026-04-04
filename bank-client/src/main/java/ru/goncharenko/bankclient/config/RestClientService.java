@@ -26,16 +26,8 @@ public class RestClientService {
 				.body(responseType);
 	}
 
-	public <T, R> T putForObject(String url, R requestBody, Class<T> responseType) {
-		return restClient.put()
-				.uri(url)
-				.body(requestBody)
-				.retrieve()
-				.body(responseType);
-	}
-
-	public <T, R> T putForObject(String url, R requestBody, ParameterizedTypeReference<T> responseType) {
-		return restClient.put()
+	public <T, R> T postForObject(String url, R requestBody, Class<T> responseType) {
+		return restClient.post()
 				.uri(url)
 				.body(requestBody)
 				.retrieve()
