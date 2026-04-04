@@ -119,6 +119,52 @@ services:
     networks:
       - app-network
 
+  cash-service:
+    build: ./cash-service
+    image: cash-service:latest
+    container_name: cash-service
+    restart: no
+    ports:
+      - "8082:8082"
+      - "5007:5007"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007
+      # Настройки клиентского сервиса для получения токенов из keycloak
+      #SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_MARKET_CLIENT_ID: ${MARKET_CLIENT_ID}
+      #SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_MARKET_CLIENT_SECRET: ${MARKET_CLIENT_SECRET}
+      #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8090/realms/master
+    depends_on:
+      postgres:
+        condition: service_started
+      account-service:
+        condition: service_started
+    networks:
+      - app-network
+
+  transfer-service:
+    build: ./transfer-service
+    image: transfer-service:latest
+    container_name: transfer-service
+    restart: no
+    ports:
+      - "8083:8083"
+      - "5008:5008"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5008
+      # Настройки клиентского сервиса для получения токенов из keycloak
+      #SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_MARKET_CLIENT_ID: ${MARKET_CLIENT_ID}
+      #SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_MARKET_CLIENT_SECRET: ${MARKET_CLIENT_SECRET}
+      #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8090/realms/master
+    depends_on:
+      postgres:
+        condition: service_started
+      account-service:
+        condition: service_started
+    networks:
+      - app-network
+
 #### Networks ####
 networks:
   app-network:

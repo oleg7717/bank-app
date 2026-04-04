@@ -11,8 +11,7 @@ import ru.goncharenko.account.service.TransferService;
 import ru.goncharenko.bankclient.model.TransferCashDto;
 import ru.goncharenko.bankclient.response.SuccessResponse;
 
-import static ru.goncharenko.bankclient.endpoint.Endpoints.ACCOUNT_BASE_URL;
-import static ru.goncharenko.bankclient.endpoint.Endpoints.TRANSFER;
+import static ru.goncharenko.bankclient.endpoint.Endpoints.*;
 
 @RestController
 @RequestMapping(ACCOUNT_BASE_URL)

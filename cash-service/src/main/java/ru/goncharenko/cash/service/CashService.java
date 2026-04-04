@@ -11,8 +11,7 @@ import reactor.core.publisher.Mono;
 import ru.goncharenko.bankclient.model.BalanceDto;
 import ru.goncharenko.bankclient.model.DepositOrWithdrawDto;
 
-import static ru.goncharenko.bankclient.endpoint.Endpoints.ACCOUNT_BASE_URL;
-import static ru.goncharenko.bankclient.endpoint.Endpoints.CASH;
+import static ru.goncharenko.bankclient.endpoint.Endpoints.*;
 
 @Slf4j
 @Service

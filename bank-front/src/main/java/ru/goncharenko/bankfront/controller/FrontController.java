@@ -2,22 +2,17 @@ package ru.goncharenko.bankfront.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.servlet.ModelAndView;
 import ru.goncharenko.bankclient.enums.CashAction;
-import ru.goncharenko.bankclient.model.AccountDto;
-import ru.goncharenko.bankclient.model.AccountListDto;
 import ru.goncharenko.bankfront.service.FrontAccountService;
-import ru.goncharenko.bankclient.exception.ValidationException;
 import ru.goncharenko.bankfront.service.FrontCashService;
+import ru.goncharenko.bankfront.service.FrontTransferService;
+import ru.goncharenko.bankfront.service.RefreshService;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Контроллер main.html.
@@ -45,6 +40,9 @@ import java.util.List;
 public class FrontController {
 	private final FrontAccountService accountService;
 	private final FrontCashService cashService;
+	private final FrontTransferService transferService;
+	private final RefreshService refreshService;
+
 	/**
 	 * GET /.
 	 * Редирект на GET /account
@@ -63,7 +61,7 @@ public class FrontController {
 	 */
 	@GetMapping("/account")
 	public ModelAndView getAccount() {
-		return getPageData();
+		return refreshService.getPageData();
 	}
 
 	/**
@@ -82,22 +80,7 @@ public class FrontController {
 			@RequestParam("name") String name,
 			@RequestParam("birthdate") LocalDate birthdate
 	) {
-		List<String> errors = new ArrayList<>();
-		try {
-			accountService.modifyAccount(name, birthdate);
-		} catch (ValidationException | RestClientException ex) {
-			errors.add(ex.getMessage());
-		}
-
-		ModelAndView model = getPageData();
-
-		if (!errors.isEmpty()) {
-			List<String> existErrors = (List<String>) model.getModel().get("errors");
-			existErrors.addAll(errors);
-			model.addObject("errors", errors);
-		}
-
-		return model;
+		return refreshService.refreshPage(accountService::modifyAccount, name, birthdate);
 	}
 
 	/**
@@ -116,22 +99,7 @@ public class FrontController {
 			@RequestParam("value") int value,
 			@RequestParam("action") CashAction action
 	) {
-		List<String> errors = new ArrayList<>();
-		try {
-			cashService.depositOrWithdraw(value, action);
-		} catch (ValidationException | RestClientException ex) {
-			errors.add(ex.getMessage());
-		}
-
-		ModelAndView model = getPageData();
-
-		if (!errors.isEmpty()) {
-			List<String> existErrors = (List<String>) model.getModel().get("errors");
-			existErrors.addAll(errors);
-			model.addObject("errors", errors);
-		}
-
-		return model;
+		return refreshService.refreshPage(cashService::depositOrWithdraw, value, action);
 	}
 
 	/**
@@ -146,37 +114,10 @@ public class FrontController {
 	 * 2. login - логин пользователя получателя
 	 */
 	@PostMapping("/transfer")
-	public String transfer(
+	public ModelAndView transfer(
 			@RequestParam("value") int value,
 			@RequestParam("login") String login
 	) {
-		// TODO: Заменить на то, что описано в комментарии к методу
-//		accountStub.transfer(model, value, login);
-
-		return "main";
-	}
-
-	private ModelAndView getPageData() {
-		AccountDto account = null;
-		List<AccountListDto> accountList = null;
-		List<String> errors = new ArrayList<>();
-
-		try {
-			accountList = accountService.getAccountsForTransfer();
-		} catch (RestClientException ex) {
-			errors.add(ex.getMessage());
-		}
-
-		try {
-			account = accountService.getAccount();
-		} catch (RestClientException ex) {
-			errors.add(ex.getMessage());
-		}
-
-		if (!errors.isEmpty()) {
-			return accountService.fillModelWithError(account, accountList, errors);
-		}
-
-		return accountService.fillModel(account, accountList);
+		return refreshService.refreshPage(transferService::transferCash, value, login);
 	}
 }
