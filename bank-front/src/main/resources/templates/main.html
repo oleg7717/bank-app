@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 
 <head>
     <meta charset="utf-8">
@@ -20,6 +20,11 @@
                     <h2>
                         <span class="badge text-bg-info text-white">Банк</span>
                     </h2>
+                    <form action="/logout" method="post" sec:authorize="isAuthenticated()" class="ms-auto">
+                        <button type="submit" class="btn btn-danger bi bi-box-arrow-right">
+                            Выход
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

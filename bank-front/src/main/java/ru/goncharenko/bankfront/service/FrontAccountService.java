@@ -3,6 +3,7 @@ package ru.goncharenko.bankfront.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import ru.goncharenko.bankclient.service.RestClientService;
@@ -31,6 +32,7 @@ public class FrontAccountService {
 		this.restClient = restClient;
 	}
 
+	@PreAuthorize("hasRole('account_editor')")
 	public AccountDto getAccount() {
 		try {
 			return restClient.getForObject(accountBaseUrl, AccountDto.class);

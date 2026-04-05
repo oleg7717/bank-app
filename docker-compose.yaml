@@ -2,7 +2,7 @@ services:
   #### Infrastructure ####
   account-db:
     image: postgres:15-alpine
-    container_name: postgres_bank_db
+    container_name: postgres-bank-db
     restart: always
     environment:
       POSTGRES_DB: ${POSTGRES_DB}

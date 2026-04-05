@@ -1,6 +1,20 @@
 spring:
   application:
     name: bank-front
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8090/realms/master
+        registration:
+          market: # Описание клиента OAuth2
+            provider: keycloak
+            authorizationGrantType: authorization_code
+            client-id: bank-front-service
+            client-secret: Lwdnla3EWnF4Rxqd39S3XxALq1UEzxs0
+            scope: openid, profile, email
+            redirect-uri: "http://localhost:8080/login/oauth2/code/{registrationId}"
 #  datasource:
 #    url: jdbc:postgresql://localhost:5432/postgres?currentSchema=bank-front
 #    username: postgres
@@ -25,3 +39,4 @@ application:
       url: http://localhost:8082
     trsnsfer:
       url: http://localhost:8083
+    postLogoutRedirectUri: http://localhost:8080/account
