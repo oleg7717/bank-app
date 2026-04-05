@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: o.goncharenko
+      changes:
+        - sql:
+            sql: CREATE SCHEMA IF NOT EXISTS notification;
+      rollback:
+        - sql:
+            sql: DROP SCHEMA IF EXISTS notification;

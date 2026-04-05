@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 import ru.goncharenko.bankclient.config.RestClientAutoConfiguration;
-import ru.goncharenko.bankclient.config.RestClientService;
+import ru.goncharenko.bankclient.service.RestClientService;
 
 @SpringBootApplication
 @Import({RestClientAutoConfiguration.class, RestClientService.class})

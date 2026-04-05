@@ -1,0 +1,31 @@
+databaseChangeLog:
+- changeSet:
+    id: 2
+    author: o.goncharenko
+    changes:
+      - createTable:
+          tableName: notifications
+          schemaName: notification
+          columns:
+            - column:
+                name: id
+                type: bigserial
+                constraints:
+                  primaryKey: true
+                  nullable: false
+            - column:
+                name: service
+                type: varchar(50)
+                constraints:
+                  nullable: false
+            - column:
+                name: message
+                type: text
+            - column:
+                name: created
+                type: datetime
+
+    rollback:
+      - dropTable:
+          tableName: notifications
+          schemaName: notification

@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
-import ru.goncharenko.bankclient.config.RestClientService;
+import ru.goncharenko.bankclient.service.RestClientService;
 import ru.goncharenko.bankclient.enums.CashAction;
 import ru.goncharenko.bankclient.model.BalanceDto;
 import ru.goncharenko.bankclient.model.DepositOrWithdrawDto;

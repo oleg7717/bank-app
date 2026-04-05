@@ -1,6 +1,6 @@
 services:
   #### Infrastructure ####
-  postgres:
+  account-db:
     image: postgres:15-alpine
     container_name: postgres_bank_db
     restart: always
@@ -12,6 +12,21 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  notification-db:
+    image: postgres:15-alpine
+    container_name: notification-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5434:5432"
+    volumes:
+      - notification_db_data:/var/lib/postgresql/data
     networks:
       - app-network
 
@@ -43,7 +58,7 @@ services:
       - "8090:8090"
     command: ["start-dev"]
     depends_on:
-      keycloak-postgres:
+      account-db:
         condition: service_started
     networks:
       - app-network
@@ -85,7 +100,7 @@ services:
     depends_on:
       account-service:
         condition: service_started
-      postgres:
+      account-db:
         condition: service_started
     networks:
       - app-network
@@ -102,11 +117,11 @@ services:
       SPRING_PROFILES_ACTIVE: prod
       JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006
       # Liquibase переменные
-      SPRING_LIQUIBASE_URL: jdbc:postgresql://postgres:5432/postgres?currentSchema=account
+      SPRING_LIQUIBASE_URL: jdbc:postgresql://account-db:5432/postgres?currentSchema=account
       SPRING_LIQUIBASE_USERNAME: ${POSTGRES_USER}
       SPRING_LIQUIBASE_PASSWORD: ${POSTGRES_PASSWORD}
       # Реактивное подключение к PostgreSQL
-      SPRING_R2DBC_URL: r2dbc:postgresql://postgres:5432/postgres?currentSchema=account
+      SPRING_R2DBC_URL: r2dbc:postgresql://account-db:5432/postgres?currentSchema=account
       SPRING_R2DBC_USERNAME: ${POSTGRES_USER}
       SPRING_R2DBC_PASSWORD: ${POSTGRES_PASSWORD}
       # Настройки клиентского сервиса для получения токенов из keycloak
@@ -114,7 +129,7 @@ services:
       #SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_MARKET_CLIENT_SECRET: ${MARKET_CLIENT_SECRET}
       #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8090/realms/master
     depends_on:
-      postgres:
+      account-db:
         condition: service_started
     networks:
       - app-network
@@ -135,7 +150,7 @@ services:
       #SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_MARKET_CLIENT_SECRET: ${MARKET_CLIENT_SECRET}
       #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8090/realms/master
     depends_on:
-      postgres:
+      account-db:
         condition: service_started
       account-service:
         condition: service_started
@@ -158,9 +173,38 @@ services:
       #SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_MARKET_CLIENT_SECRET: ${MARKET_CLIENT_SECRET}
       #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8090/realms/master
     depends_on:
-      postgres:
+      account-db:
         condition: service_started
       account-service:
+        condition: service_started
+    networks:
+      - app-network
+
+  notification-service:
+    build: ./notification-service
+    image: notification-service:latest
+    container_name: notification-service
+    restart: no
+    ports:
+      - "8084:8084"
+      - "5009:5009"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5009
+      # Liquibase переменные
+      SPRING_LIQUIBASE_URL: jdbc:postgresql://notification-db:5432/postgres?currentSchema=notification
+      SPRING_LIQUIBASE_USERNAME: ${POSTGRES_USER}
+      SPRING_LIQUIBASE_PASSWORD: ${POSTGRES_PASSWORD}
+      # Реактивное подключение к PostgreSQL
+      SPRING_R2DBC_URL: r2dbc:postgresql://notification-db:5432/postgres?currentSchema=notification
+      SPRING_R2DBC_USERNAME: ${POSTGRES_USER}
+      SPRING_R2DBC_PASSWORD: ${POSTGRES_PASSWORD}
+      # Настройки клиентского сервиса для получения токенов из keycloak
+      #SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_MARKET_CLIENT_ID: ${MARKET_CLIENT_ID}
+      #SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_MARKET_CLIENT_SECRET: ${MARKET_CLIENT_SECRET}
+      #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8090/realms/master
+    depends_on:
+      notification-db:
         condition: service_started
     networks:
       - app-network
@@ -177,3 +221,4 @@ volumes:
   postgres_data:
   redis_data:
   postgres_keycloak_data:
+  notification_db_data:

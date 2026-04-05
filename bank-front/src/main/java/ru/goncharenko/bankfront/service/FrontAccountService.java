@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
-import ru.goncharenko.bankclient.config.RestClientService;
+import ru.goncharenko.bankclient.service.RestClientService;
 import ru.goncharenko.bankclient.model.AccountDto;
 import ru.goncharenko.bankclient.model.AccountListDto;
 import ru.goncharenko.bankclient.model.AccountModifyDto;

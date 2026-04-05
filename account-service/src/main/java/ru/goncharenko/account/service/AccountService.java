@@ -1,6 +1,7 @@
 package ru.goncharenko.account.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -8,13 +9,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.goncharenko.bankclient.exception.NotFoundException;
-import ru.goncharenko.bankclient.exception.ValidationException;
 import ru.goncharenko.account.mapper.AccountMapper;
 import ru.goncharenko.account.repository.AccountRepository;
+import ru.goncharenko.bankclient.exception.NotFoundException;
+import ru.goncharenko.bankclient.exception.ValidationException;
 import ru.goncharenko.bankclient.model.AccountDto;
 import ru.goncharenko.bankclient.model.AccountListDto;
 import ru.goncharenko.bankclient.model.AccountModifyDto;
+import ru.goncharenko.bankclient.service.NotificationSendService;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -25,6 +27,10 @@ import java.util.Objects;
 public class AccountService {
 	private final AccountRepository repository;
 	private final AccountMapper accountMapper;
+	private final NotificationSendService notificationSendService;
+
+	@Value("${spring.application.name}")
+	private String service;
 	String myLogin = "o.goncharenko";
 
 	public Mono<ResponseEntity<AccountDto>> getAccount() {
@@ -55,6 +61,8 @@ public class AccountService {
 								));
 							}
 
+							notificationSendService.sendNotification(service, "Обновление персональных данных").subscribe();
+
 							return repository.updateAccount(
 											accountModify.getFirstname(),
 											accountModify.getSurname(),
@@ -62,8 +70,13 @@ public class AccountService {
 											login)
 									.flatMap(updated -> repository.findByLogin(login)
 											.map(accountMapper::mapToDto)
-											.flatMap(accountDto -> Mono.just(ResponseEntity.ok()
-													.body(accountDto)))
+											.flatMap(accountDto -> {
+												notificationSendService.sendNotification(
+														service,
+														"Персональные данные обновлены успешно"
+												).subscribe();
+												return Mono.just(ResponseEntity.ok().body(accountDto));
+											})
 									);
 						}
 

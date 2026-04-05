@@ -28,5 +28,10 @@ spring:
         #jwt:
           #issuer-uri: http://localhost:8090/realms/master
 
+application:
+  service:
+    notification:
+      url: http://localhost:8084
+
 server:
   port: 8081

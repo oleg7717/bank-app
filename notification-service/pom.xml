@@ -12,6 +12,12 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>ru.goncharenko</groupId>
+            <artifactId>bank-client</artifactId>
+            <version>0.0.1</version>
+        </dependency>
+
         <!-- Spring Boot Framework -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -73,10 +79,10 @@
         </dependency>
 
         <!-- Security -->
-        <dependency>
+<!--        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-        </dependency>
+        </dependency>-->
 
         <!-- Tools -->
         <dependency>

@@ -1,4 +1,4 @@
-package ru.goncharenko.bankclient.config;
+package ru.goncharenko.bankclient.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
