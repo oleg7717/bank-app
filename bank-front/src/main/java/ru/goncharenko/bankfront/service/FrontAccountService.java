@@ -61,7 +61,11 @@ public class FrontAccountService {
 			String[] usernameArray = name.split(" ");
 			String surname = usernameArray[0];
 			String firstname = usernameArray[1];
-			AccountModifyDto modifyDto = new AccountModifyDto(firstname, surname, birthdate);
+			AccountModifyDto modifyDto = AccountModifyDto.builder()
+					.firstname(firstname)
+					.surname(surname)
+					.birthdate(birthdate)
+					.build();
 			restClient.postForObject(accountBaseUrl + "/" + login, modifyDto, AccountDto.class);
 		} catch (RestClientException ex) {
 			log.error("RestClient error: {}", ex.getMessage());

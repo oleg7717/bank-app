@@ -25,7 +25,11 @@ public class FrontTransferService {
 
 	public void transferCash(int value, String accountTo) {
 		try {
-			TransferCashDto transferCash = new TransferCashDto(login, accountTo, (double) value);
+			TransferCashDto transferCash = TransferCashDto.builder()
+					.fromAccount(login)
+					.toAccount(accountTo)
+					.amount((double) value)
+					.build();
 			restClient.postForObject(transferBaseUrl, transferCash, BalanceDto.class);
 		} catch (RestClientException ex) {
 			log.error("RestClient error: {}", ex.getMessage());

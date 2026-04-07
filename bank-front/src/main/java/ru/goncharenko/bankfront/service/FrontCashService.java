@@ -26,7 +26,11 @@ public class FrontCashService {
 
 	public void depositOrWithdraw(int value, CashAction action) {
 		try {
-			DepositOrWithdrawDto depositOrWithdraw = new DepositOrWithdrawDto(login, (double) value, action);
+			DepositOrWithdrawDto depositOrWithdraw = DepositOrWithdrawDto.builder()
+					.login(login)
+					.balance((double) value)
+					.action(action)
+					.build();
 			restClient.postForObject(cashBaseUrl, depositOrWithdraw, BalanceDto.class);
 		} catch (RestClientException ex) {
 			log.error("RestClient error: {}", ex.getMessage());
