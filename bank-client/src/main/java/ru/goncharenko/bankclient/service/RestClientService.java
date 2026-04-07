@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import ru.goncharenko.bankclient.utils.BearerAuthResolver;
 
 @Service
 @ConditionalOnClass(RestClient.class)
@@ -15,6 +16,7 @@ public class RestClientService {
 	public <T> T getForObject(String url, Class<T> responseType) {
 		return restClient.get()
 				.uri(url)
+				.headers(BearerAuthResolver::setAuthHeader)
 				.retrieve()
 				.body(responseType);
 	}
@@ -22,6 +24,7 @@ public class RestClientService {
 	public <T> T getForObject(String url, ParameterizedTypeReference<T> responseType) {
 		return restClient.get()
 				.uri(url)
+				.headers(BearerAuthResolver::setAuthHeader)
 				.retrieve()
 				.body(responseType);
 	}
@@ -29,6 +32,7 @@ public class RestClientService {
 	public <T, R> T postForObject(String url, R requestBody, Class<T> responseType) {
 		return restClient.post()
 				.uri(url)
+				.headers(BearerAuthResolver::setAuthHeader)
 				.body(requestBody)
 				.retrieve()
 				.body(responseType);

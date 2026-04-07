@@ -1,6 +1,7 @@
 package ru.goncharenko.account.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import ru.goncharenko.account.config.security.utils.SecurityUtils;
 import ru.goncharenko.account.mapper.AccountMapper;
 import ru.goncharenko.account.repository.AccountRepository;
 import ru.goncharenko.bankclient.exception.NotFoundException;
@@ -22,37 +24,43 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AccountService {
+	private final SecurityUtils securityUtils;
 	private final AccountRepository repository;
 	private final AccountMapper accountMapper;
 	private final NotificationSendService notificationSendService;
 
 	@Value("${spring.application.name}")
 	private String service;
-	String myLogin = "o.goncharenko";
+//	String myLogin = "o.goncharenko";
 
 	public Mono<ResponseEntity<AccountDto>> getAccount() {
-		return repository.findByLogin(myLogin)
-				.map(accountMapper::mapToDto)
-				.flatMap(account -> Mono.just(ResponseEntity.ok()
-						.body(account)))
-				.switchIfEmpty(
-						Mono.error(new NotFoundException(
-								String.format("У пользователя %s нет аккаунта в банке ", myLogin)
-						))
+		return securityUtils.getCurrentUsername()
+				.flatMap(userName ->
+						repository.findByLogin(userName)
+								.map(accountMapper::mapToDto)
+								.flatMap(account -> Mono.just(ResponseEntity.ok()
+										.body(account)))
+								.switchIfEmpty(
+										Mono.error(new NotFoundException(
+												String.format("У пользователя %s нет аккаунта в банке ", userName)
+										))
+								)
 				);
 	}
 
 	@Transactional
 	public Mono<ResponseEntity<AccountDto>> modifyAccount(Mono<AccountModifyDto> accountModifyDto, String login) {
-		return repository.findByLogin(login).flatMap(account ->
+		return securityUtils.getCurrentUsername().flatMap(userName ->
+				repository.findByLogin(login).flatMap(account ->
 				accountModifyDto.flatMap(accountModify -> {
-							if (!Objects.equals(account.getLogin(), login)) {
+							if (!Objects.equals(account.getLogin(), userName)) {
 								return Mono.error(new ResponseStatusException(
 										HttpStatus.BAD_REQUEST,
-										String.format("Пользователь %s не может менять данные другого аккаунта", login)
+										String.format("Пользователь %s не может менять данные другого аккаунта", userName)
 								));
 							}
 							if (accountModify.getBirthdate().until(LocalDate.now(), ChronoUnit.YEARS) < 18) {
@@ -80,7 +88,7 @@ public class AccountService {
 									);
 						}
 
-				)
+				))
 		).switchIfEmpty(
 				Mono.error(new NotFoundException(
 						String.format("У пользователя %s нет аккаунта в банке ", login)

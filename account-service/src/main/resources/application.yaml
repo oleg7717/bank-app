@@ -22,11 +22,11 @@ spring:
 #      mode: always
 #      data-locations: classpath:data.sql
 #      continue-on-error: true
-  #security:
-    #oauth2:
-      #resourceserver:
-        #jwt:
-          #issuer-uri: http://localhost:8090/realms/master
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8090/realms/master
 
 application:
   service:
