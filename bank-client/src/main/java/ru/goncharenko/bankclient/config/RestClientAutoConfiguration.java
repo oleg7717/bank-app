@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 @Configuration
 public class RestClientAutoConfiguration {
@@ -15,7 +16,7 @@ public class RestClientAutoConfiguration {
 		return RestClient.builder()
 				.defaultStatusHandler(HttpStatusCode::is4xxClientError,
 						(req, resp) -> {
-							throw new RuntimeException("HTTP " + resp.getStatusCode());
+							throw new RestClientException("HTTP " + resp.getStatusCode());
 						});
 	}
 
