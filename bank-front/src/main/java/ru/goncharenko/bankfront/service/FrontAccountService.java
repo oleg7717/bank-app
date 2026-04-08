@@ -32,7 +32,7 @@ public class FrontAccountService {
 		this.restClient = restClient;
 	}
 
-	@PreAuthorize("hasRole('account_editor')")
+	@PreAuthorize("hasRole('account_viewer')")
 	public AccountDto getAccount() {
 		try {
 			return restClient.getForObject(accountBaseUrl, AccountDto.class);
@@ -43,6 +43,7 @@ public class FrontAccountService {
 		}
 	}
 
+	@PreAuthorize("hasRole('account_viewer')")
 	public List<AccountListDto> getAccountsForTransfer() {
 		try {
 			return restClient.getForObject(accountBaseUrl + ACCOUNT_LIST, new ParameterizedTypeReference<>() {});
@@ -53,6 +54,7 @@ public class FrontAccountService {
 		}
 	}
 
+	@PreAuthorize("hasRole('account_editor')")
 	public void modifyAccount(String name, LocalDate birthdate) {
 		if (birthdate.until(LocalDate.now(), ChronoUnit.YEARS) < 18) {
 			throw new ValidationException("Пользователь не может быть младше 18 лет");

@@ -24,6 +24,18 @@ spring:
 #      continue-on-error: true
   security:
     oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8090/realms/master # Адрес сервера авторизации для получения токена
+        registration:
+          account: # Описание клиента OAuth2
+            provider: keycloak
+            authorizationGrantType: client_credentials
+            client-id: account-service
+            client-secret: hwpSBn4HQdeVUCqZlFr2RjF3ECggNZKV
+            scope: profile
+            clientAuthenticationMethod: client_secret_post
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8090/realms/master

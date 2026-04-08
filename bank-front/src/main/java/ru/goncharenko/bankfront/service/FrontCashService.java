@@ -2,6 +2,7 @@ package ru.goncharenko.bankfront.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import ru.goncharenko.bankclient.service.RestClientService;
@@ -24,6 +25,7 @@ public class FrontCashService {
 		this.restClient = restClient;
 	}
 
+	@PreAuthorize("hasRole('cash_deposit_or_withdraw')")
 	public void depositOrWithdraw(int value, CashAction action) {
 		try {
 			DepositOrWithdrawDto depositOrWithdraw = DepositOrWithdrawDto.builder()

@@ -1,11 +1,24 @@
 spring:
   application:
     name: cash-service
-#  security:
-#    oauth2:
-#      resourceserver:
-#        jwt:
-#          issuer-uri: http://localhost:8090/realms/master
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8090/realms/master # Адрес сервера авторизации для получения токена
+        registration:
+          cash: # Описание клиента OAuth2
+            provider: keycloak
+            authorizationGrantType: client_credentials
+            client-id: cash-service
+            client-secret: xElPJbnMIzvxRInMd2d0eGa5rrQf7tvD
+            scope: profile
+            clientAuthenticationMethod: client_secret_post
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8090/realms/master
+
 
 server:
   port: 8082

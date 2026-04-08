@@ -2,6 +2,7 @@ package ru.goncharenko.bankfront.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import ru.goncharenko.bankclient.service.RestClientService;
@@ -23,6 +24,7 @@ public class FrontTransferService {
 		this.restClient = restClient;
 	}
 
+	@PreAuthorize("hasRole('transfer_cash')")
 	public void transferCash(int value, String accountTo) {
 		try {
 			TransferCashDto transferCash = TransferCashDto.builder()

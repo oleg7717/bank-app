@@ -2,14 +2,12 @@ package ru.goncharenko.cash.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 import ru.goncharenko.bankclient.model.BalanceDto;
 import ru.goncharenko.bankclient.model.DepositOrWithdrawDto;
+import ru.goncharenko.bankclient.service.WebClientService;
 
 import static ru.goncharenko.bankclient.endpoint.Endpoints.*;
 
@@ -17,21 +15,13 @@ import static ru.goncharenko.bankclient.endpoint.Endpoints.*;
 @Service
 @RequiredArgsConstructor
 public class CashService {
-	private final WebClient webClient;
+	private final WebClientService webClientService;
+
+	@Value("${application.service.account.url}")
+	private String accountUrl;
+
 
 	public Mono<BalanceDto> depositOrWithdraw(DepositOrWithdrawDto dto) {
-		return webClient.post()
-				.uri(ACCOUNT_BASE_URL + CASH)
-				.bodyValue(dto)
-				.retrieve()
-				.onStatus(HttpStatusCode::is4xxClientError, (response) ->
-						response.bodyToMono(String.class).flatMap(error -> {
-							log.error("Custom 4xx handler: {}", error);
-							return Mono.error(new ResponseStatusException(
-									HttpStatus.BAD_REQUEST,
-									error
-							));
-						}))
-				.bodyToMono(BalanceDto.class);
+		return webClientService.postForObject(accountUrl + ACCOUNT_BASE_URL + CASH, dto, BalanceDto.class);
 	}
 }

@@ -1,4 +1,4 @@
-package ru.goncharenko.account.config.security;
+package ru.goncharenko.cash.config.security;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -29,8 +29,7 @@ public class SecurityConfig {
 		return security
 				.authorizeExchange(exchanges -> exchanges
 						.pathMatchers(HttpMethod.GET, "/actuator/**").permitAll()
-						.pathMatchers(HttpMethod.POST, "/api/v1/account/cash/**").permitAll()
-						.anyExchange().permitAll()
+						.anyExchange().authenticated()
 				)
 				.oauth2ResourceServer(oauth2 -> oauth2
 						.jwt(jwt -> jwt

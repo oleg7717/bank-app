@@ -4,11 +4,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.reactive.config.EnableWebFlux;
+import ru.goncharenko.bankclient.config.JwtAuthFilter;
 import ru.goncharenko.bankclient.config.WebClientAutoConfig;
 import ru.goncharenko.bankclient.service.NotificationSendService;
 
 @SpringBootApplication
-@Import({WebClientAutoConfig.class, NotificationSendService.class})
+@Import({WebClientAutoConfig.class, NotificationSendService.class, JwtAuthFilter.class})
 @EnableWebFlux
 public class AccountServiceApplication {
 
