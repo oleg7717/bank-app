@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
+import ru.goncharenko.bankclient.utils.BearerAuthResolver;
 
 @Slf4j
 @Service
@@ -19,9 +20,10 @@ public class WebClientService {
 	@Qualifier("serviceWebClient")
 	private final WebClient webClient;
 
-	public <T, R> Mono<T> postForObject(String url, R requestBody, Class<T> responseType) {
+	public <T, R> Mono<T> postForObject(String url, String token, R requestBody, Class<T> responseType) {
 		return webClient.post()
 				.uri(url)
+				.headers(headers -> headers.setBearerAuth(token))
 				.bodyValue(requestBody)
 				.retrieve()
 				.onStatus(HttpStatusCode::is4xxClientError, (response) ->
@@ -30,6 +32,14 @@ public class WebClientService {
 							return Mono.error(new ResponseStatusException(
 									HttpStatus.BAD_REQUEST,
 									error
+							));
+						}))
+				.onStatus(HttpStatusCode::is5xxServerError, response ->
+						response.bodyToMono(String.class).flatMap(error -> {
+							log.error("Server error {}: {}", response.statusCode(), error);
+							return Mono.error(new ResponseStatusException(
+									response.statusCode(),
+									"Server error: " + error
 							));
 						}))
 				.bodyToMono(responseType);

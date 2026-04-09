@@ -8,7 +8,7 @@ spring:
           keycloak:
             issuer-uri: http://localhost:8090/realms/master # Адрес сервера авторизации для получения токена
         registration:
-          cash: # Описание клиента OAuth2
+          cash-service: # Описание клиента OAuth2
             provider: keycloak
             authorizationGrantType: client_credentials
             client-id: cash-service

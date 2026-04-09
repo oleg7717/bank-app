@@ -53,7 +53,7 @@ public class SecurityConfig {
 				return Flux.empty();
 			}
 
-			Map<String, Object> account = (Map<String, Object>) resourceAccess.get("account");
+			Map<String, Object> account = (Map<String, Object>) resourceAccess.get("bank-front-service");
 			if (account == null) {
 				return Flux.empty();
 			}

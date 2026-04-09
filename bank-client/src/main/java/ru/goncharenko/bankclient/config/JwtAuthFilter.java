@@ -11,6 +11,9 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
 import reactor.core.publisher.Mono;
 
+/*
+* Фильтр для сквозной аутентификации пользователя при передаче запроса в другие микросервисы по цепочке
+* */
 @Slf4j
 @Component
 public class JwtAuthFilter implements ExchangeFilterFunction {

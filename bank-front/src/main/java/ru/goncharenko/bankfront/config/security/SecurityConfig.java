@@ -40,7 +40,7 @@ public class SecurityConfig {
 	@Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri}")
 	private String issuerUri;
 
-	@Value("${spring.security.oauth2.client.registration.market.client-id}")
+	@Value("${spring.security.oauth2.client.registration.account.client-id}")
 	private String clientId;
 
 	@Value("${application.service.postLogoutRedirectUri}")

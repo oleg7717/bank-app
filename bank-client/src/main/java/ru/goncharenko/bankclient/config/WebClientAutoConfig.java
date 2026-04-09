@@ -12,14 +12,14 @@ import reactor.core.publisher.Mono;
 @Configuration
 @RequiredArgsConstructor
 public class WebClientAutoConfig {
-	private final JwtAuthFilter jwtAuthFilter;
+//	private final JwtAuthFilter jwtAuthFilter;
 
 	@Bean(name = "serviceWebClient")
 	@Primary
 	@ConditionalOnMissingBean(name = "serviceWebClient")
 	public WebClient webClient() {
 		return WebClient.builder()
-				.filter(jwtAuthFilter)
+//				.filter(jwtAuthFilter) //Реализация для передачи пользовательского токена для сквозной аутентификации
 				.defaultStatusHandler(HttpStatusCode::is4xxClientError,
 						(resp) ->
 								Mono.error(new RuntimeException("HTTP " + resp.bodyToMono(String.class)))

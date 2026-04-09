@@ -3,6 +3,7 @@ package ru.goncharenko.account.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -20,6 +21,7 @@ import java.math.RoundingMode;
 public class CashService {
 	private final AccountRepository accountRepository;
 
+	@PreAuthorize("hasRole('cash_deposit_or_withdraw')")
 	@Transactional
 	public Mono<ResponseEntity<BalanceDto>> depositOrWithdraw(Mono<DepositOrWithdrawDto> depositOrWithdrawDto) {
 		return depositOrWithdrawDto.flatMap(dto -> accountRepository

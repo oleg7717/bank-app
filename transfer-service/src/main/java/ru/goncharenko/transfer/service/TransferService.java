@@ -2,14 +2,13 @@ package ru.goncharenko.transfer.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 import ru.goncharenko.bankclient.model.TransferCashDto;
 import ru.goncharenko.bankclient.response.SuccessResponse;
+import ru.goncharenko.bankclient.service.WebClientService;
+import ru.goncharenko.bankclient.utils.SecurityUtils;
 
 import static ru.goncharenko.bankclient.endpoint.Endpoints.*;
 
@@ -17,21 +16,23 @@ import static ru.goncharenko.bankclient.endpoint.Endpoints.*;
 @Service
 @RequiredArgsConstructor
 public class TransferService {
-	private final WebClient webClient;
+	private final WebClientService webClientService;
+	private final SecurityUtils securityUtils;
+
+	@Value("${application.service.account.url}")
+	private String accountUrl;
 
 	public Mono<SuccessResponse> transferCash(TransferCashDto dto) {
-		return webClient.post()
-				.uri(ACCOUNT_BASE_URL + TRANSFER)
-				.bodyValue(dto)
-				.retrieve()
-				.onStatus(HttpStatusCode::is4xxClientError, (response) ->
-						response.bodyToMono(String.class).flatMap(error -> {
-							log.error("Custom 4xx handler: {}", error);
-							return Mono.error(new ResponseStatusException(
-									HttpStatus.BAD_REQUEST,
-									error
-							));
-						}))
-				.bodyToMono(SuccessResponse.class);
+		return securityUtils.getAuthorize("transfer-service")
+				.doOnSubscribe(sub -> log.info("Starting account service call"))
+				.doOnSuccess(token -> log.info("Token obtained successfully"))
+				.doOnError(error -> log.error("Failed to obtain token", error))
+				.flatMap(client ->
+						webClientService.postForObject(accountUrl + ACCOUNT_BASE_URL + TRANSFER,
+								client.getAccessToken().getTokenValue(),
+								dto,
+								SuccessResponse.class
+						)
+				);
 	}
 }

@@ -1,16 +1,21 @@
 package ru.goncharenko.account.handler;
 
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import reactor.core.publisher.Mono;
 import ru.goncharenko.bankclient.exception.NotFoundException;
 import ru.goncharenko.bankclient.exception.ValidationException;
 import ru.goncharenko.account.response.MessageApiResponse;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -33,6 +38,26 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	public MessageApiResponse handleGenericException(Exception ex) {
 		return MessageApiResponse.error(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+	}
+
+	@ExceptionHandler(AccessDeniedException.class)
+	@ResponseStatus(HttpStatus.FORBIDDEN)
+	public Mono<MessageApiResponse> handleAccessDeniedException(AccessDeniedException ex) {
+		log.warn("Access denied: {}", ex.getMessage());
+		return Mono.just(MessageApiResponse.error(
+				"Access denied: " + ex.getMessage(),
+				HttpStatus.FORBIDDEN.value()
+		));
+	}
+
+	@ExceptionHandler(AuthenticationException.class)
+	@ResponseStatus(HttpStatus.UNAUTHORIZED)
+	public Mono<MessageApiResponse> handleAuthenticationException(AuthenticationException ex) {
+		log.warn("Authentication failed: {}", ex.getMessage());
+		return Mono.just(MessageApiResponse.error(
+				"Authentication failed: " + ex.getMessage(),
+				HttpStatus.UNAUTHORIZED.value()
+		));
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
