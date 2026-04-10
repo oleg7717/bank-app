@@ -12,7 +12,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import static java.util.Objects.requireNonNull;
+import java.util.Objects;
 
 @Slf4j
 @Component
@@ -23,7 +23,7 @@ public class SecurityUtils {
 	public Mono<String> getCurrentUsername() {
 		return ReactiveSecurityContextHolder.getContext()
 				.map(context -> {
-					Object principal = context.getAuthentication().getPrincipal();
+					Object principal = Objects.requireNonNull(context.getAuthentication()).getPrincipal();
 					if (principal instanceof Jwt jwt) {
 						return (String) jwt.getClaims().get("preferred_username");
 					}

@@ -1,4 +1,4 @@
-package ru.goncharenko.notification.config.security.security;
+package ru.goncharenko.notification.config.security;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

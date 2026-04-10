@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.goncharenko.account.config.security.utils.SecurityUtils;
 import ru.goncharenko.account.mapper.AccountMapper;
 import ru.goncharenko.account.repository.AccountRepository;
 import ru.goncharenko.bankclient.exception.NotFoundException;
@@ -19,6 +18,7 @@ import ru.goncharenko.bankclient.model.AccountDto;
 import ru.goncharenko.bankclient.model.AccountListDto;
 import ru.goncharenko.bankclient.model.AccountModifyDto;
 import ru.goncharenko.bankclient.service.NotificationSendService;
+import ru.goncharenko.bankclient.utils.SecurityUtils;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -35,7 +35,6 @@ public class AccountService {
 
 	@Value("${spring.application.name}")
 	private String service;
-//	String myLogin = "o.goncharenko";
 
 	public Mono<ResponseEntity<AccountDto>> getAccount() {
 		return securityUtils.getCurrentUsername()
