@@ -29,7 +29,7 @@ public class SecurityConfig {
 		return security
 				.authorizeExchange(exchanges -> exchanges
 						.pathMatchers(HttpMethod.GET, "/actuator/**").permitAll()
-						.anyExchange().authenticated()
+						.anyExchange().hasRole("notification")
 				)
 				.oauth2ResourceServer(oauth2 -> oauth2
 						.jwt(jwt -> jwt
@@ -53,18 +53,23 @@ public class SecurityConfig {
 				return Flux.empty();
 			}
 
-			Map<String, Object> account = (Map<String, Object>) resourceAccess.get("account");
-			if (account == null) {
-				return Flux.empty();
-			}
+			Map<String, Object> account = (Map<String, Object>) resourceAccess.get("account-service");
+			Map<String, Object> cash = (Map<String, Object>) resourceAccess.get("cash-service");
+			Map<String, Object> transfer = (Map<String, Object>) resourceAccess.get("transfer-service");
 
-			List<String> roles = (List<String>) account.get("roles");
-			if (roles == null) {
+			List<String> roles;
+			if (account != null) {
+				roles = (List<String>) account.get("roles");
+			} else if (cash != null) {
+				roles = (List<String>) cash.get("roles");
+			} else if (transfer != null) {
+				roles = (List<String>) transfer.get("roles");
+			} else {
 				return Flux.empty();
 			}
 
 			return Flux.fromIterable(roles)
-					.map(SimpleGrantedAuthority::new);
+					.map(role -> new SimpleGrantedAuthority("ROLE_" + role));
 		});
 		return converter;
 	}

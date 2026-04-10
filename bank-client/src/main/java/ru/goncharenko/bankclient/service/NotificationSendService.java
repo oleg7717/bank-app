@@ -16,6 +16,7 @@ import ru.goncharenko.bankclient.model.NotificationDto;
 
 import java.time.LocalDateTime;
 
+import static org.springframework.security.oauth2.client.web.ClientAttributes.clientRegistrationId;
 import static ru.goncharenko.bankclient.endpoint.Endpoints.NOTIFICATION_BASE_URL;
 
 @Slf4j
@@ -41,6 +42,7 @@ public class NotificationSendService {
 
 		return webClient.post()
 				.uri(notificationUrl)
+				.attributes(clientRegistrationId(service))
 				.bodyValue(notification)
 				.retrieve()
 				.onStatus(HttpStatusCode::is4xxClientError, (response) ->

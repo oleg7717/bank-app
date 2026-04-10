@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -21,7 +22,13 @@ public class SecurityUtils {
 
 	public Mono<String> getCurrentUsername() {
 		return ReactiveSecurityContextHolder.getContext()
-				.map(context -> requireNonNull(context.getAuthentication()).getName())
+				.map(context -> {
+					Object principal = context.getAuthentication().getPrincipal();
+					if (principal instanceof Jwt jwt) {
+						return (String) jwt.getClaims().get("preferred_username");
+					}
+					return "unknown";
+				})
 				.doOnNext(username -> log.info("Current user: {}", username))
 				.switchIfEmpty(Mono.just("anonymous"))
 				.onErrorResume(e -> {

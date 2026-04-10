@@ -12,6 +12,8 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 import ru.goncharenko.bankclient.utils.BearerAuthResolver;
 
+import static org.springframework.security.oauth2.client.web.ClientAttributes.clientRegistrationId;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -20,10 +22,11 @@ public class WebClientService {
 	@Qualifier("serviceWebClient")
 	private final WebClient webClient;
 
-	public <T, R> Mono<T> postForObject(String url, String token, R requestBody, Class<T> responseType) {
+	public <T, R> Mono<T> postForObject(String url, String service, R requestBody, Class<T> responseType) {
 		return webClient.post()
 				.uri(url)
-				.headers(headers -> headers.setBearerAuth(token))
+//				.headers(headers -> headers.setBearerAuth(token))
+				.attributes(clientRegistrationId(service))
 				.bodyValue(requestBody)
 				.retrieve()
 				.onStatus(HttpStatusCode::is4xxClientError, (response) ->

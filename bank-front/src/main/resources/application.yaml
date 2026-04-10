@@ -8,7 +8,7 @@ spring:
           keycloak:
             issuer-uri: http://localhost:8090/realms/master
         registration:
-          market: # Описание клиента OAuth2
+          bank-front-service: # Описание клиента OAuth2
             provider: keycloak
             authorizationGrantType: authorization_code
             client-id: bank-front-service

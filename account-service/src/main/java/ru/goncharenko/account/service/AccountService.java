@@ -78,13 +78,14 @@ public class AccountService {
 											login)
 									.flatMap(updated -> repository.findByLogin(login)
 											.map(accountMapper::mapToDto)
-											.flatMap(accountDto -> {
+											.flatMap(accountDto ->
 												notificationSendService.sendNotification(
 														service,
 														"Персональные данные обновлены успешно"
-												).subscribe();
-												return Mono.just(ResponseEntity.ok().body(accountDto));
-											})
+												).thenReturn((ResponseEntity.ok().body(accountDto)))
+														//.subscribe()
+//												return Mono.just(ResponseEntity.ok().body(accountDto));
+											)
 									);
 						}
 
