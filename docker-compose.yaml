@@ -1,5 +1,15 @@
 services:
   #### Infrastructure ####
+  config-server:
+    build: ./config-server
+    image: config-server:latest
+    container_name: config-server
+    restart: always
+    ports:
+      - "8888:8888"
+    networks:
+      - app-network
+
   account-db:
     image: postgres:15-alpine
     container_name: postgres-bank-db
