@@ -1,0 +1,57 @@
+spring:
+  main:
+    web-application-type: reactive
+    allow-bean-definition-overriding: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8090/realms/master
+  cloud:
+    gateway:
+      routes:
+        # Имя маршрута (используется в логах и конфигурации)
+        - id: account-service
+          # Куда Gateway проксирует запросы, подходящие под предикаты
+          # Здесь это account-service
+          uri: http://localhost:8081
+          predicates:
+            # Все запросы с путём /account/** попадут на этот маршрут
+            - Path=/account-service/**
+          filters:
+            # Подключаем кастомный фильтр Token Relay
+            # Он берёт JWT и добавляет заголовок Authorization к исходящему запросу
+            - name: JwtTokenRelay
+            - name: StripPrefix
+              args:
+                parts: 1
+        # Имя маршрута (используется в логах и конфигурации)
+        - id: cash-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/cash-service/**
+          filters:
+            - name: JwtTokenRelay
+            - name: StripPrefix
+              args:
+                parts: 1
+        # Имя маршрута (используется в логах и конфигурации)
+        - id: transfer-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/transfer-service/**
+          filters:
+            - name: JwtTokenRelay
+            - name: StripPrefix
+              args:
+                parts: 1
+
+server:
+  port: 9080
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+    ru.goncharenko.gateway: DEBUG
