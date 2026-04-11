@@ -10,6 +10,16 @@ services:
     networks:
       - app-network
 
+  gateway:
+    build: ./gateway
+    image: gateway:latest
+    container_name: gateway
+    restart: always
+    ports:
+      - "9080:9080"
+    networks:
+      - app-network
+
   account-db:
     image: postgres:15-alpine
     container_name: postgres-bank-db
