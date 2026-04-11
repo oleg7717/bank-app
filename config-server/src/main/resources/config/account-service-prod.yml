@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: account-service
+  r2dbc:
+    url: r2dbc:postgresql://account-db:5432/postgres?currentSchema=account
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  liquibase:
+    url: jdbc:postgresql://account-db:5432/postgres?currentSchema=account
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    default-schema: account
+    liquibase-schema: public
+  security:
+    oauth2:
+      client:
+        registration:
+          account-service: # Описание клиента OAuth2
+            provider: keycloak
+            authorizationGrantType: client_credentials
+            client-id: account-service
+            client-secret: ${ACCOUNT_CLIENT_SECRET}
+            scope: profile
+            clientAuthenticationMethod: client_secret_post

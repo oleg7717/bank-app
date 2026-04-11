@@ -1,0 +1,15 @@
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://keycloak:8090/realms/master # Адрес сервера авторизации для получения токена
+      resourceserver:
+        jwt:
+          issuer-uri: http://keycloak:8090/realms/master
+
+application:
+  service:
+    account:
+      url: http://account-service:8081

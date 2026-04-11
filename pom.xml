@@ -36,6 +36,8 @@
         <module>transfer-service</module>
         <module>cash-service</module>
         <module>notification-service</module>
+        <module>config-server</module>
+        <module>gateway</module>
     </modules>
 
     <dependencyManagement>
@@ -44,6 +46,15 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Spring Cloud BOM -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>2025.1.1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

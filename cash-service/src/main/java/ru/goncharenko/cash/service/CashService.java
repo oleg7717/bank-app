@@ -31,9 +31,6 @@ public class CashService {
 
 	public Mono<BalanceDto> depositOrWithdraw(DepositOrWithdrawDto dto) {
 		return securityUtils.getAuthorize("cash-service")
-				.doOnSubscribe(sub -> log.info("Starting account service call"))
-				.doOnSuccess(token -> log.info("Token obtained successfully"))
-				.doOnError(error -> log.error("Failed to obtain token", error))
 				.flatMap(client ->
 						webClientService.postForObject(accountUrl + ACCOUNT_BASE_URL + CASH,
 								"cash-service",
@@ -41,7 +38,8 @@ public class CashService {
 								BalanceDto.class
 						).flatMap(resp ->
 								securityUtils.getCurrentUsername().flatMap(userName -> notificationSendService
-										.sendNotification(service,
+										.sendNotification(
+												service,
 												String.format("Пополнение / снятие средств со счёта %s успешно выполнено", userName)
 										)
 										.thenReturn(resp))

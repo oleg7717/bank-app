@@ -15,8 +15,6 @@ import reactor.core.publisher.Mono;
 @Configuration
 @RequiredArgsConstructor
 public class WebClientAutoConfig {
-//	private final JwtAuthFilter jwtAuthFilter;
-
 	@Bean(name = "serviceWebClient")
 	@Primary
 	@ConditionalOnMissingBean(name = "serviceWebClient")

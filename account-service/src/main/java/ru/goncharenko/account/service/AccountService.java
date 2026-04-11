@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 import ru.goncharenko.account.mapper.AccountMapper;
 import ru.goncharenko.account.repository.AccountRepository;
 import ru.goncharenko.bankclient.exception.NotFoundException;
+import ru.goncharenko.bankclient.exception.NotificationServiceException;
 import ru.goncharenko.bankclient.exception.ValidationException;
 import ru.goncharenko.bankclient.model.AccountDto;
 import ru.goncharenko.bankclient.model.AccountListDto;
@@ -51,7 +52,7 @@ public class AccountService {
 				);
 	}
 
-	@Transactional
+	@Transactional(noRollbackFor = NotificationServiceException.class)
 	public Mono<ResponseEntity<AccountDto>> modifyAccount(Mono<AccountModifyDto> accountModifyDto, String login) {
 		return securityUtils.getCurrentUsername().flatMap(userName ->
 				repository.findByLogin(login).flatMap(account ->
@@ -68,8 +69,6 @@ public class AccountService {
 								));
 							}
 
-							notificationSendService.sendNotification(service, "Обновление персональных данных").subscribe();
-
 							return repository.updateAccount(
 											accountModify.getFirstname(),
 											accountModify.getSurname(),
@@ -81,9 +80,14 @@ public class AccountService {
 												notificationSendService.sendNotification(
 														service,
 														"Персональные данные обновлены успешно"
-												).thenReturn((ResponseEntity.ok().body(accountDto)))
-														//.subscribe()
-//												return Mono.just(ResponseEntity.ok().body(accountDto));
+												)
+												.thenReturn(ResponseEntity.ok().body(accountDto))
+												.onErrorResume(error ->
+														// Данные сохранены, но возвращаем ошибку уведомления
+														Mono.error(new NotificationServiceException(
+																"Account updated, but notification send failed"
+														))
+												)
 											)
 									);
 						}

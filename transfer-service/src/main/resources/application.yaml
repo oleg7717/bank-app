@@ -1,28 +1,32 @@
 spring:
   application:
     name: transfer-service
-  security:
-    oauth2:
-      client:
-        provider:
-          keycloak:
-            issuer-uri: http://localhost:8090/realms/master # Адрес сервера авторизации для получения токена
-        registration:
-          transfer-service: # Описание клиента OAuth2
-            provider: keycloak
-            authorizationGrantType: client_credentials
-            client-id: transfer-service
-            client-secret: zMZk9jsziK6IpIcOFIh5CtSPpKtKlEPp
-            scope: profile
-            clientAuthenticationMethod: client_secret_post
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8090/realms/master
+  config:
+    import: configserver:http://127.0.0.1:8888
+  profiles:
+    active: dev
+#  security:
+#    oauth2:
+#      client:
+#        provider:
+#          keycloak:
+#            issuer-uri: http://localhost:8090/realms/master # Адрес сервера авторизации для получения токена
+#        registration:
+#          transfer-service: # Описание клиента OAuth2
+#            provider: keycloak
+#            authorizationGrantType: client_credentials
+#            client-id: transfer-service
+#            client-secret: zMZk9jsziK6IpIcOFIh5CtSPpKtKlEPp
+#            scope: profile
+#            clientAuthenticationMethod: client_secret_post
+#      resourceserver:
+#        jwt:
+#          issuer-uri: http://localhost:8090/realms/master
 
 server:
   port: 8083
 
-application:
-  service:
-    account:
-      url: http://localhost:8081
+#application:
+#  service:
+#    account:
+#      url: http://localhost:8081

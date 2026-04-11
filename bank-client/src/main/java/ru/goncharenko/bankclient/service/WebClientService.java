@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
-import ru.goncharenko.bankclient.utils.BearerAuthResolver;
 
 import static org.springframework.security.oauth2.client.web.ClientAttributes.clientRegistrationId;
 
@@ -25,7 +24,6 @@ public class WebClientService {
 	public <T, R> Mono<T> postForObject(String url, String service, R requestBody, Class<T> responseType) {
 		return webClient.post()
 				.uri(url)
-//				.headers(headers -> headers.setBearerAuth(token))
 				.attributes(clientRegistrationId(service))
 				.bodyValue(requestBody)
 				.retrieve()
