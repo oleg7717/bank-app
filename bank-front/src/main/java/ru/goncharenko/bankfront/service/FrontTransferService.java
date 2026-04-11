@@ -8,25 +8,30 @@ import org.springframework.web.client.RestClientException;
 import ru.goncharenko.bankclient.service.RestClientService;
 import ru.goncharenko.bankclient.model.BalanceDto;
 import ru.goncharenko.bankclient.model.TransferCashDto;
+import ru.goncharenko.bankfront.config.security.utils.SecurityUtils;
 
 import static ru.goncharenko.bankclient.endpoint.Endpoints.TRANSFER_BASE_URL;
+import static ru.goncharenko.bankclient.endpoint.Endpoints.TRANSFER_GATEWAY;
 
 @Slf4j
 @Service
 public class FrontTransferService {
-	private final String login = "o.goncharenko";
 	private final String transferBaseUrl;
 	private final RestClientService restClient;
+	private final SecurityUtils securityUtils;
 
-	public FrontTransferService(@Value("${application.service.trsnsfer.url:http://localhost:8083}") String transferUrl,
-	                            final RestClientService restClient) {
-		this.transferBaseUrl = transferUrl + TRANSFER_BASE_URL;
+	public FrontTransferService(@Value("${application.service.gateway.url:http://localhost:9080}") String gatewayUrl,
+	                            final RestClientService restClient,
+	                            SecurityUtils securityUtils) {
+		this.transferBaseUrl = gatewayUrl + TRANSFER_GATEWAY + TRANSFER_BASE_URL;
 		this.restClient = restClient;
+		this.securityUtils = securityUtils;
 	}
 
 	@PreAuthorize("hasRole('transfer_cash')")
 	public void transferCash(int value, String accountTo) {
 		try {
+			String login = securityUtils.getCurrentUsername();
 			TransferCashDto transferCash = TransferCashDto.builder()
 					.fromAccount(login)
 					.toAccount(accountTo)

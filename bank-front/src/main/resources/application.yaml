@@ -26,10 +26,12 @@ server:
 
 application:
   service:
+    gateway:
+      url: http://localhost:9080
     account:
       url: http://localhost:8081
     cash:
       url: http://localhost:8082
-    trsnsfer:
+    transfer:
       url: http://localhost:8083
     postLogoutRedirectUri: http://localhost:8080/account

@@ -11,6 +11,7 @@ import ru.goncharenko.bankclient.model.AccountDto;
 import ru.goncharenko.bankclient.model.AccountListDto;
 import ru.goncharenko.bankclient.model.AccountModifyDto;
 import ru.goncharenko.bankclient.exception.ValidationException;
+import ru.goncharenko.bankfront.config.security.utils.SecurityUtils;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -21,15 +22,16 @@ import static ru.goncharenko.bankclient.endpoint.Endpoints.*;
 @Slf4j
 @Service
 public class FrontAccountService {
-	private final String login = "o.goncharenko";
 	private final String accountBaseUrl;
-
 	private final RestClientService restClient;
+	private final SecurityUtils securityUtils;
 
-	public FrontAccountService(@Value("${application.service.account.url:http://localhost:8081}") String accountUrl,
-	                           final RestClientService restClient) {
-		this.accountBaseUrl = accountUrl + ACCOUNT_BASE_URL;
+	public FrontAccountService(@Value("${application.service.gateway.url:http://localhost:9080}") String gatewayUrl,
+	                           final RestClientService restClient,
+	                           SecurityUtils securityUtils) {
+		this.accountBaseUrl = gatewayUrl + ACCOUNT_GATEWAY + ACCOUNT_BASE_URL;
 		this.restClient = restClient;
+		this.securityUtils = securityUtils;
 	}
 
 	@PreAuthorize("hasRole('account_viewer')")
@@ -56,6 +58,7 @@ public class FrontAccountService {
 
 	@PreAuthorize("hasRole('account_editor')")
 	public void modifyAccount(String name, LocalDate birthdate) {
+		String login = securityUtils.getCurrentUsername();
 		if (birthdate.until(LocalDate.now(), ChronoUnit.YEARS) < 18) {
 			throw new ValidationException("Пользователь не может быть младше 18 лет");
 		}

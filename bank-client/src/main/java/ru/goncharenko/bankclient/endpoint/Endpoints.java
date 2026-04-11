@@ -6,6 +6,11 @@ public class Endpoints {
 	public static final String TRANSFER_BASE_URL = "/api/v1/transfer";
 	public static final String NOTIFICATION_BASE_URL = "/api/v1/notification";
 
+	public static final String ACCOUNT_GATEWAY = "/account-service";
+	public static final String CASH_GATEWAY = "/cash-service";
+	public static final String TRANSFER_GATEWAY = "/transfer-service";
+
+
 	public static final String ACCOUNT_LIST = "/account_list";
 	public static final String CASH = "/cash";
 	public static final String TRANSFER = "/transfer";

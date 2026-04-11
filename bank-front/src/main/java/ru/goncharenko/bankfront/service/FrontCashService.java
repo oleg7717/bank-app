@@ -9,25 +9,29 @@ import ru.goncharenko.bankclient.service.RestClientService;
 import ru.goncharenko.bankclient.enums.CashAction;
 import ru.goncharenko.bankclient.model.BalanceDto;
 import ru.goncharenko.bankclient.model.DepositOrWithdrawDto;
+import ru.goncharenko.bankfront.config.security.utils.SecurityUtils;
 
-import static ru.goncharenko.bankclient.endpoint.Endpoints.CASH_BASE_URL;
+import static ru.goncharenko.bankclient.endpoint.Endpoints.*;
 
 @Slf4j
 @Service
 public class FrontCashService {
-	private final String login = "o.goncharenko";
 	private final String cashBaseUrl;
 	private final RestClientService restClient;
+	private final SecurityUtils securityUtils;
 
-	public FrontCashService(@Value("${application.service.cash.url:http://localhost:8082}") String cashUrl,
-	                        final RestClientService restClient) {
-		this.cashBaseUrl = cashUrl + CASH_BASE_URL;
+	public FrontCashService(@Value("${application.service.gateway.url:http://localhost:9080}") String gatewayUrl,
+	                        final RestClientService restClient,
+	                        SecurityUtils securityUtils) {
+		this.cashBaseUrl = gatewayUrl + CASH_GATEWAY + CASH_BASE_URL;
 		this.restClient = restClient;
+		this.securityUtils = securityUtils;
 	}
 
 	@PreAuthorize("hasRole('cash_deposit_or_withdraw')")
 	public void depositOrWithdraw(int value, CashAction action) {
 		try {
+			String login = securityUtils.getCurrentUsername();
 			DepositOrWithdrawDto depositOrWithdraw = DepositOrWithdrawDto.builder()
 					.login(login)
 					.balance((double) value)
