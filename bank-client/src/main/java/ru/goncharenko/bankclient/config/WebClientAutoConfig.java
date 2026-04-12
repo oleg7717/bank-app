@@ -2,6 +2,7 @@ package ru.goncharenko.bankclient.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cloud.client.loadbalancer.reactive.ReactorLoadBalancerExchangeFilterFunction;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -15,6 +16,8 @@ import reactor.core.publisher.Mono;
 @Configuration
 @RequiredArgsConstructor
 public class WebClientAutoConfig {
+	private final ReactorLoadBalancerExchangeFilterFunction loadBalancerFilter;
+
 	@Bean(name = "serviceWebClient")
 	@Primary
 	@ConditionalOnMissingBean(name = "serviceWebClient")
@@ -34,6 +37,7 @@ public class WebClientAutoConfig {
 
 		return WebClient.builder()
 //				.filter(jwtAuthFilter) //Реализация для передачи пользовательского токена для сквозной аутентификации
+				.filter(loadBalancerFilter)
 				.filter(oauthFilter)
 				.defaultStatusHandler(HttpStatusCode::is4xxClientError,
 						(resp) ->

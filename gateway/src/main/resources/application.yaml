@@ -1,4 +1,7 @@
 spring:
+  application:
+    name:
+      gateway
   main:
     web-application-type: reactive
     allow-bean-definition-overriding: true
@@ -9,14 +12,18 @@ spring:
           issuer-uri: http://localhost:8090/realms/master
   cloud:
     gateway:
+      discovery:
+        locator:
+          enabled: true  # Автоматическое создание маршрутов на основе serviceId
+          lower-case-service-id: true
       routes:
         # Имя маршрута (используется в логах и конфигурации)
         - id: account-service
           # Куда Gateway проксирует запросы, подходящие под предикаты
           # Здесь это account-service
-          uri: http://localhost:8081
+          uri: lb://account-service
           predicates:
-            # Все запросы с путём /account/** попадут на этот маршрут
+            # Все запросы с путём /account-service/** попадут на этот маршрут
             - Path=/account-service/**
           filters:
             # Подключаем кастомный фильтр Token Relay
@@ -27,7 +34,7 @@ spring:
                 parts: 1
         # Имя маршрута (используется в логах и конфигурации)
         - id: cash-service
-          uri: http://localhost:8082
+          uri: lb://cash-service
           predicates:
             - Path=/cash-service/**
           filters:
@@ -37,7 +44,7 @@ spring:
                 parts: 1
         # Имя маршрута (используется в логах и конфигурации)
         - id: transfer-service
-          uri: http://localhost:8083
+          uri: lb://transfer-service
           predicates:
             - Path=/transfer-service/**
           filters:

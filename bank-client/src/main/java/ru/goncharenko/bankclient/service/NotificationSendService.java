@@ -21,7 +21,7 @@ public class NotificationSendService {
 	private final String notificationUrl;
 	private final WebClientService webClientService;
 
-	public NotificationSendService(@Value("${application.service.notification.url:http://localhost:8084}") String notificationBaseUrl,
+	public NotificationSendService(@Value("${application.service.notification.url:http://notification-service}") String notificationBaseUrl,
 	                        final WebClientService webClientService) {
 		this.notificationUrl = notificationBaseUrl + NOTIFICATION_BASE_URL;
 		this.webClientService = webClientService;

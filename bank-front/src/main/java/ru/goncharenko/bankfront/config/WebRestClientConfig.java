@@ -6,7 +6,7 @@ import org.springframework.web.client.RestClient;
 
 @Configuration
 public class WebRestClientConfig {
-	@Value("${application.service.account.url:http://localhost:8081}")
+	@Value("${application.service.account.url:http://account-service}")
 	private String accountUrl;
 
 	public RestClient restClient() {

@@ -9,7 +9,18 @@ spring:
         jwt:
           issuer-uri: http://keycloak:8090/realms/master
 
+eureka:
+  client:
+    service-url:
+      defaultZone: http://discovery-server:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
 application:
   service:
     account:
-      url: http://account-service:8081
+      url: http://account-service

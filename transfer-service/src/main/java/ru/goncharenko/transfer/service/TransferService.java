@@ -25,7 +25,7 @@ public class TransferService {
 	@Value("${spring.application.name}")
 	private String service;
 
-	@Value("${application.service.account.url}")
+	@Value("${application.service.account.url:http//account-service}")
 	private String accountUrl;
 
 	public Mono<SuccessResponse> transferCash(TransferCashDto dto) {

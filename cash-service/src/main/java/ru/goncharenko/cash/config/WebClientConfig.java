@@ -7,7 +7,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class WebClientConfig {
-	@Value("${application.service.account.url:http://localhost:8081}")
+	@Value("${application.service.account.url:http://account-service}")
 	private String accountUrl;
 
 	@Bean

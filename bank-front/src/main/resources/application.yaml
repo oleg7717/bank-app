@@ -21,6 +21,20 @@ spring:
             scope: openid, profile, email
             redirect-uri: "http://localhost:8080/login/oauth2/code/{registrationId}"
 
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/  # Явно укажите URL
+    register-with-eureka: true
+    fetch-registry: true
+    enabled: true  # Явно включите
+  instance:
+    hostname: localhost
+    prefer-ip-address: false  # Измените на false для localhost
+    instance-id: ${spring.application.name}:${server.port}
+    lease-renewal-interval-in-seconds: 10  # Уменьшите для отладки
+    lease-expiration-duration-in-seconds: 30
+
 server:
   port: 8080
 
@@ -29,9 +43,9 @@ application:
     gateway:
       url: http://localhost:9080
     account:
-      url: http://localhost:8081
+      url: http://account-service
     cash:
-      url: http://localhost:8082
+      url: http://cash-service
     transfer:
-      url: http://localhost:8083
+      url: http://transfer-service
     postLogoutRedirectUri: http://localhost:8080/account
