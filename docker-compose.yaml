@@ -20,6 +20,16 @@ services:
     networks:
       - app-network
 
+  discovery-server:
+    build: ./discovery-server
+    image: discovery-server:latest
+    container_name: discovery-server
+    restart: always
+    ports:
+      - "8761:8761"
+    networks:
+      - app-network
+
   account-db:
     image: postgres:15-alpine
     container_name: postgres-bank-db
