@@ -3,20 +3,15 @@ package ru.goncharenko.bankclient.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 import ru.goncharenko.bankclient.model.NotificationDto;
 
 import java.time.LocalDateTime;
 
-import static org.springframework.security.oauth2.client.web.ClientAttributes.clientRegistrationId;
 import static ru.goncharenko.bankclient.endpoint.Endpoints.NOTIFICATION_BASE_URL;
 
 @Slf4j
@@ -24,35 +19,22 @@ import static ru.goncharenko.bankclient.endpoint.Endpoints.NOTIFICATION_BASE_URL
 @ConditionalOnClass(WebClient.class)
 public class NotificationSendService {
 	private final String notificationUrl;
-	private final WebClient webClient;
+	private final WebClientService webClientService;
 
 	public NotificationSendService(@Value("${application.service.notification.url:http://localhost:8084}") String notificationBaseUrl,
-	                        final WebClient webClient) {
+	                        final WebClientService webClientService) {
 		this.notificationUrl = notificationBaseUrl + NOTIFICATION_BASE_URL;
-		this.webClient = webClient;
+		this.webClientService = webClientService;
 	}
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public Mono<ResponseEntity<Void>> sendNotification(String service, String message) {
+	public Mono<Void> sendNotification(String service, String message) {
 		NotificationDto notification = NotificationDto.builder()
 				.service(service)
 				.message(message)
 				.created(LocalDateTime.now())
 				.build();
 
-		return webClient.post()
-				.uri(notificationUrl)
-				.attributes(clientRegistrationId(service))
-				.bodyValue(notification)
-				.retrieve()
-				.onStatus(HttpStatusCode::is4xxClientError, (response) ->
-						response.bodyToMono(String.class).flatMap(error -> {
-							log.error("Custom 4xx handler: {}", error);
-							return Mono.error(new ResponseStatusException(
-									HttpStatus.BAD_REQUEST,
-									error
-							));
-						}))
-				.toBodilessEntity();
+		return webClientService.postForObject(notificationUrl, service, notification, Void.class);
 	}
 }
