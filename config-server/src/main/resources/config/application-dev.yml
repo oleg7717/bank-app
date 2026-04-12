@@ -24,3 +24,12 @@ application:
   service:
     account:
       url: http://account-service
+
+management:
+  health:
+    discovery:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info
