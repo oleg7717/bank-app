@@ -41,6 +41,12 @@
             <artifactId>spring-boot-starter-oauth2-client</artifactId>
         </dependency>
 
+        <!-- Spring Cloud Config Server extend from bank-client -->
+
+        <!-- Spring Cloud Gateway extend from bank-client -->
+
+        <!-- Spring Cloud Eureka extend from bank-client -->
+
         <!-- Tools -->
         <dependency>
             <groupId>org.projectlombok</groupId>

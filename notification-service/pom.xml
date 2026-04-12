@@ -80,7 +80,12 @@
 
         <!-- Security extend from bank-client -->
 
-        <!-- Spring Cloud extend from bank-client -->
+        <!-- Spring Cloud Config Server extend from bank-client -->
+
+        <!-- Spring Cloud Gateway extend from bank-client -->
+
+        <!-- Spring Cloud Eureka extend from bank-client -->
+
 
         <!-- Tools -->
         <dependency>
