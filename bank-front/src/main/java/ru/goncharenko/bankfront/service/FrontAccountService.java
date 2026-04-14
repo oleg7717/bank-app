@@ -64,6 +64,9 @@ public class FrontAccountService {
 		}
 		try {
 			String[] usernameArray = name.split(" ");
+			if (usernameArray.length < 2) {
+				throw new ValidationException("В запросе должно быть имя и фамилия");
+			}
 			String surname = usernameArray[0];
 			String firstname = usernameArray[1];
 			AccountModifyDto modifyDto = AccountModifyDto.builder()
