@@ -1,6 +1,7 @@
 package ru.goncharenko.account.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,7 @@ public class AccountService {
 	private final AccountMapper accountMapper;
 	private final NotificationSendService notificationSendService;
 
+	@Setter
 	@Value("${spring.application.name}")
 	private String service;
 
