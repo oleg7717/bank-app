@@ -17,6 +17,9 @@ services:
     restart: always
     ports:
       - "9080:9080"
+    depends_on:
+      discovery-server:
+        condition: service_started
     networks:
       - app-network
 
@@ -132,6 +135,8 @@ services:
         condition: service_started
       account-db:
         condition: service_started
+      discovery-server:
+        condition: service_started
     networks:
       - app-network
 
@@ -161,6 +166,8 @@ services:
     depends_on:
       account-db:
         condition: service_started
+      discovery-server:
+        condition: service_started
     networks:
       - app-network
 
@@ -184,6 +191,8 @@ services:
         condition: service_started
       account-service:
         condition: service_started
+      discovery-server:
+        condition: service_started
     networks:
       - app-network
 
@@ -206,6 +215,8 @@ services:
       account-db:
         condition: service_started
       account-service:
+        condition: service_started
+      discovery-server:
         condition: service_started
     networks:
       - app-network
@@ -235,6 +246,8 @@ services:
       #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8090/realms/master
     depends_on:
       notification-db:
+        condition: service_started
+      discovery-server:
         condition: service_started
     networks:
       - app-network
