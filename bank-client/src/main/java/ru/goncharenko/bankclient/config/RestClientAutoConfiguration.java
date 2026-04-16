@@ -1,6 +1,10 @@
 package ru.goncharenko.bankclient.config;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerInterceptor;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerRequestFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatusCode;
@@ -23,6 +27,13 @@ public class RestClientAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public RestClient restClient(RestClient.Builder builder) {
+		return builder.build();
+	}
+
+	@Bean
+	@LoadBalanced
+	@ConditionalOnMissingBean(name = "loadBalancedRestClient")
+	public RestClient loadBalancedRestClient(RestClient.Builder builder) {
 		return builder.build();
 	}
 }

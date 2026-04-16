@@ -1,6 +1,6 @@
 package ru.goncharenko.bankclient.service;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
@@ -9,12 +9,15 @@ import ru.goncharenko.bankclient.utils.BearerAuthResolver;
 
 @Service
 @ConditionalOnClass(RestClient.class)
-@RequiredArgsConstructor
 public class RestClientService {
-	private final RestClient restClient;
+	private final RestClient loadBalancedRestClient;
+
+	public RestClientService(@Qualifier("loadBalancedRestClient") RestClient loadBalancedRestClient) {
+		this.loadBalancedRestClient = loadBalancedRestClient;
+	}
 
 	public <T> T getForObject(String url, Class<T> responseType) {
-		return restClient.get()
+		return loadBalancedRestClient.get()
 				.uri(url)
 				.headers(BearerAuthResolver::setAuthHeader)
 				.retrieve()
@@ -22,7 +25,7 @@ public class RestClientService {
 	}
 
 	public <T> T getForObject(String url, ParameterizedTypeReference<T> responseType) {
-		return restClient.get()
+		return loadBalancedRestClient.get()
 				.uri(url)
 				.headers(BearerAuthResolver::setAuthHeader)
 				.retrieve()
@@ -30,7 +33,7 @@ public class RestClientService {
 	}
 
 	public <T, R> T postForObject(String url, R requestBody, Class<T> responseType) {
-		return restClient.post()
+		return loadBalancedRestClient.post()
 				.uri(url)
 				.headers(BearerAuthResolver::setAuthHeader)
 				.body(requestBody)
