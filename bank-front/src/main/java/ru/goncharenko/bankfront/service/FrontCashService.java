@@ -9,7 +9,7 @@ import ru.goncharenko.bankclient.web.service.RestClientService;
 import ru.goncharenko.bankclient.common.enums.CashAction;
 import ru.goncharenko.bankclient.common.model.BalanceDto;
 import ru.goncharenko.bankclient.common.model.DepositOrWithdrawDto;
-import ru.goncharenko.bankfront.config.security.utils.SecurityUtils;
+import ru.goncharenko.bankclient.web.config.utils.SecurityUtils;
 
 import static ru.goncharenko.bankclient.common.endpoint.Endpoints.CASH_BASE_URL;
 import static ru.goncharenko.bankclient.common.endpoint.Endpoints.CASH_GATEWAY;

@@ -6,12 +6,12 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
+import ru.goncharenko.bankclient.web.config.utils.SecurityUtils;
 import ru.goncharenko.bankclient.web.service.RestClientService;
 import ru.goncharenko.bankclient.common.model.AccountDto;
 import ru.goncharenko.bankclient.common.model.AccountListDto;
 import ru.goncharenko.bankclient.common.model.AccountModifyDto;
 import ru.goncharenko.bankclient.common.exception.ValidationException;
-import ru.goncharenko.bankfront.config.security.utils.SecurityUtils;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;

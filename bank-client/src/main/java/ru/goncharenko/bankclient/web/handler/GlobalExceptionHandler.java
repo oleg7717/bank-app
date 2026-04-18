@@ -1,4 +1,4 @@
-package ru.goncharenko.account.handler;
+package ru.goncharenko.bankclient.web.handler;
 
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -10,10 +10,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import reactor.core.publisher.Mono;
 import ru.goncharenko.bankclient.common.exception.NotFoundException;
 import ru.goncharenko.bankclient.common.exception.ValidationException;
-import ru.goncharenko.account.response.MessageApiResponse;
+import ru.goncharenko.bankclient.common.response.MessageApiResponse;
 
 @Slf4j
 @RestControllerAdvice
@@ -42,22 +41,22 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(AccessDeniedException.class)
 	@ResponseStatus(HttpStatus.FORBIDDEN)
-	public Mono<MessageApiResponse> handleAccessDeniedException(AccessDeniedException ex) {
+	public MessageApiResponse handleAccessDeniedException(AccessDeniedException ex) {
 		log.warn("Access denied: {}", ex.getMessage());
-		return Mono.just(MessageApiResponse.error(
+		return MessageApiResponse.error(
 				"Access denied: " + ex.getMessage(),
 				HttpStatus.FORBIDDEN.value()
-		));
+		);
 	}
 
 	@ExceptionHandler(AuthenticationException.class)
 	@ResponseStatus(HttpStatus.UNAUTHORIZED)
-	public Mono<MessageApiResponse> handleAuthenticationException(AuthenticationException ex) {
+	public MessageApiResponse handleAuthenticationException(AuthenticationException ex) {
 		log.warn("Authentication failed: {}", ex.getMessage());
-		return Mono.just(MessageApiResponse.error(
+		return MessageApiResponse.error(
 				"Authentication failed: " + ex.getMessage(),
 				HttpStatus.UNAUTHORIZED.value()
-		));
+		);
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)

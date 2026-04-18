@@ -8,7 +8,7 @@ import org.springframework.web.client.RestClientException;
 import ru.goncharenko.bankclient.web.service.RestClientService;
 import ru.goncharenko.bankclient.common.model.BalanceDto;
 import ru.goncharenko.bankclient.common.model.TransferCashDto;
-import ru.goncharenko.bankfront.config.security.utils.SecurityUtils;
+import ru.goncharenko.bankclient.web.config.utils.SecurityUtils;
 
 import static ru.goncharenko.bankclient.common.endpoint.Endpoints.TRANSFER_BASE_URL;
 import static ru.goncharenko.bankclient.common.endpoint.Endpoints.TRANSFER_GATEWAY;

@@ -13,7 +13,7 @@ import ru.goncharenko.bankclient.common.model.AccountDto;
 import ru.goncharenko.bankclient.common.model.AccountListDto;
 import ru.goncharenko.bankclient.common.model.AccountModifyDto;
 import ru.goncharenko.bankclient.web.service.RestClientService;
-import ru.goncharenko.bankfront.config.security.utils.SecurityUtils;
+import ru.goncharenko.bankclient.web.config.utils.SecurityUtils;
 
 import java.time.LocalDate;
 import java.util.List;

@@ -1,4 +1,4 @@
-package ru.goncharenko.bankfront.config.security.utils;
+package ru.goncharenko.bankclient.web.config.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
