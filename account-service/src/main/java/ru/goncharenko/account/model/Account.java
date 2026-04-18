@@ -1,4 +1,4 @@
-package ru.goncharenko.account.model.entity;
+package ru.goncharenko.account.model;
 
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;

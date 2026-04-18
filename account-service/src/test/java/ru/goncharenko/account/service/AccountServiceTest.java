@@ -12,7 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import ru.goncharenko.account.mapper.AccountMapper;
-import ru.goncharenko.account.model.entity.Account;
+import ru.goncharenko.account.model.Account;
 import ru.goncharenko.account.repository.AccountRepository;
 import ru.goncharenko.bankclient.common.exception.NotFoundException;
 import ru.goncharenko.bankclient.common.exception.NotificationServiceException;

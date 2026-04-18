@@ -4,7 +4,7 @@ import org.springframework.data.r2dbc.repository.Modifying;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import reactor.core.publisher.Mono;
-import ru.goncharenko.account.model.entity.Account;
+import ru.goncharenko.account.model.Account;
 
 import java.time.LocalDate;
 
