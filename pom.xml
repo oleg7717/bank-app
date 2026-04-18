@@ -35,7 +35,11 @@
         <module>account-service</module>
         <module>transfer-service</module>
         <module>cash-service</module>
+        <module>antifraud-service</module>
+
         <module>notification-service</module>
+
+
         <module>config-server</module>
         <module>gateway</module>
         <module>discovery-server</module>

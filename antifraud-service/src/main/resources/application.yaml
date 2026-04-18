@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: antifraud-service
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/  # Явно укажите URL
+    register-with-eureka: true
+    fetch-registry: true
+    enabled: true  # Явно включите
+  instance:
+    hostname: localhost
+    prefer-ip-address: false  # Измените на false для localhost
+    instance-id: ${spring.application.name}:${server.port}
+    lease-renewal-interval-in-seconds: 10  # Уменьшите для отладки
+    lease-expiration-duration-in-seconds: 30
+
+server:
+  port: 8085
