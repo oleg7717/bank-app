@@ -35,7 +35,7 @@ public class FrontCashService {
 			String login = securityUtils.getCurrentUsername();
 			DepositOrWithdrawDto depositOrWithdraw = DepositOrWithdrawDto.builder()
 					.login(login)
-					.balance((double) value)
+					.amount((double) value)
 					.action(action)
 					.build();
 			restClient.postForObject(cashBaseUrl, depositOrWithdraw, BalanceDto.class);

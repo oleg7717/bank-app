@@ -14,6 +14,6 @@ import ru.goncharenko.bankclient.common.enums.CashAction;
 @AllArgsConstructor
 public class DepositOrWithdrawDto {
 	private String login;
-	private Double balance;
+	private Double amount;
 	private CashAction action;
 }

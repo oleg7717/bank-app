@@ -23,7 +23,7 @@ public class AntiFraudResponse {
 	}
 
 	public static AntiFraudResponse allowedOperation(String message) {
-		return AntiFraudResponse.builder().status(AntifraudCheckStatus.BLOCKED)
+		return AntiFraudResponse.builder().status(AntifraudCheckStatus.ALLOWED)
 				.message(message)
 				.build();
 	}

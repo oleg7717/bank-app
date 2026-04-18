@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import ru.goncharenko.bankclient.common.model.TransferCashDto;
 import ru.goncharenko.bankclient.common.response.SuccessResponse;
+import ru.goncharenko.bankclient.reactive.service.AntifraudSendService;
 import ru.goncharenko.bankclient.reactive.service.NotificationSendService;
 import ru.goncharenko.bankclient.reactive.service.WebClientService;
 import ru.goncharenko.bankclient.reactive.utils.SecurityUtils;
@@ -20,6 +21,7 @@ import static ru.goncharenko.bankclient.common.endpoint.Endpoints.TRANSFER;
 public class TransferService {
 	private final WebClientService webClientService;
 	private final NotificationSendService notificationSendService;
+	private final AntifraudSendService antifraudSendService;
 	private final SecurityUtils securityUtils;
 
 	@Value("${spring.application.name}")
@@ -29,10 +31,24 @@ public class TransferService {
 	private String accountUrl;
 
 	public Mono<SuccessResponse> transferCash(TransferCashDto dto) {
-		return securityUtils.getAuthorize("transfer-service")
+		return securityUtils.getAuthorize(service)
+				.flatMap(antifraudSendService.makeFraudCheck(service, dto))
+/*				.flatMap(client -> {
+					AntifraudDto antifraudDto = antifraudMapper.mapToAntifraudDto(dto);
+					return antifraudSendService.makeFraudCheck(service, antifraudDto)
+							.flatMap(antiFraudResponse -> {
+								if (antiFraudResponse.getStatus() == AntifraudCheckStatus.BLOCKED) {
+									return Mono.error(new ResponseStatusException(
+											HttpStatus.UNAVAILABLE_FOR_LEGAL_REASONS,
+											antiFraudResponse.getMessage()
+									));
+								}
+								return Mono.just(client);
+							});
+				})*/
 				.flatMap(client ->
 						webClientService.postForObject(accountUrl + ACCOUNT_BASE_URL + TRANSFER,
-								"transfer-service",
+								service,
 								dto,
 								SuccessResponse.class
 						)

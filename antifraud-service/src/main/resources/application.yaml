@@ -1,7 +1,10 @@
 spring:
   application:
     name: antifraud-service
-
+  cloud:
+    config:
+      import-check:
+        enabled: false
 eureka:
   client:
     service-url:
@@ -15,6 +18,11 @@ eureka:
     instance-id: ${spring.application.name}:${server.port}
     lease-renewal-interval-in-seconds: 10  # Уменьшите для отладки
     lease-expiration-duration-in-seconds: 30
+
+application:
+  service:
+    antifraud:
+      url: http://antifraud-service
 
 server:
   port: 8085

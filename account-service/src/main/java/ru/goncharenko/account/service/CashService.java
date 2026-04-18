@@ -29,7 +29,7 @@ public class CashService {
 				.flatMap(account -> {
 					String login = dto.getLogin();
 					Double balance = account.getBalance();
-					Double amount = dto.getBalance();
+					Double amount = dto.getAmount();
 					if (balance < amount) {
 						return Mono.error(new ResponseStatusException(
 								HttpStatus.CONFLICT,
