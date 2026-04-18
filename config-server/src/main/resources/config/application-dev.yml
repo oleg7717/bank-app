@@ -1,0 +1,35 @@
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8090/realms/master # Адрес сервера авторизации для получения токена
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8090/realms/master
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+
+application:
+  service:
+    account:
+      url: http://account-service
+
+management:
+  health:
+    discovery:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info

@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: transfer-service
+  security:
+    oauth2:
+      client:
+        registration:
+          transfer-service: # Описание клиента OAuth2
+            provider: keycloak
+            authorizationGrantType: client_credentials
+            client-id: transfer-service
+            client-secret: ${TRANSFER_CLIENT_SECRET}
+            scope: profile
+            clientAuthenticationMethod: client_secret_post

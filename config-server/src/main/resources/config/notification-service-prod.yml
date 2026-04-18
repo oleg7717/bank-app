@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: notification-service
+  r2dbc:
+    url: r2dbc:postgresql://notification-db:5434/postgres?currentSchema=notification
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  liquibase:
+    url: jdbc:postgresql://notification-db:5434/postgres?currentSchema=notification
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    default-schema: notification
+    liquibase-schema: public

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>ru.goncharenko</groupId>
+    <artifactId>bank-app</artifactId>
+    <version>0.0.1</version>
+    <packaging>pom</packaging>
+
+    <name>bank-app</name>
+    <description>Bank application with microservice architecture patterns</description>
+
+    <properties>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring-boot.version>4.0.3</spring-boot.version>
+
+        <!-- Версии зависимостей для процессоров аннотаций -->
+        <lombok.version>1.18.30</lombok.version>
+        <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
+
+        <!-- Версии плагинов -->
+        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+        <spring-boot-maven-plugin.version>3.1.5</spring-boot-maven-plugin.version>
+        <openapi-generator-maven-plugin.version>7.20.0</openapi-generator-maven-plugin.version>
+        <com.github.codemonstur.version>1.4.3</com.github.codemonstur.version>
+    </properties>
+
+    <modules>
+        <module>bank-client</module>
+        <module>bank-front</module>
+        <module>account-service</module>
+        <module>transfer-service</module>
+        <module>cash-service</module>
+        <module>notification-service</module>
+        <module>config-server</module>
+        <module>gateway</module>
+        <module>discovery-server</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Spring Cloud BOM -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>2025.1.1</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${org.mapstruct.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct-processor</artifactId>
+                <version>${org.mapstruct.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.codemonstur</groupId>
+                <artifactId>embedded-redis</artifactId>
+                <version>${com.github.codemonstur.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot-maven-plugin.version}</version>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.openapitools</groupId>
+                    <artifactId>openapi-generator-maven-plugin</artifactId>
+                    <version>${openapi-generator-maven-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: cash-service
+  security:
+    oauth2:
+      client:
+        registration:
+          cash-service: # Описание клиента OAuth2
+            provider: keycloak
+            authorizationGrantType: client_credentials
+            client-id: cash-service
+            client-secret: ${CASH_CLIENT_SECRET}
+            scope: profile
+            clientAuthenticationMethod: client_secret_post
