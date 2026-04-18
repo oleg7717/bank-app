@@ -1,1 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=ru.goncharenko.bankclient.common.CommonAutoConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=ru.goncharenko.bankclient.config.CommonAutoConfiguration

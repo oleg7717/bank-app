@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import reactor.core.publisher.Mono;
-import ru.goncharenko.bankclient.exception.NotFoundException;
-import ru.goncharenko.bankclient.exception.ValidationException;
+import ru.goncharenko.bankclient.common.exception.NotFoundException;
+import ru.goncharenko.bankclient.common.exception.ValidationException;
 import ru.goncharenko.account.response.MessageApiResponse;
 
 @Slf4j

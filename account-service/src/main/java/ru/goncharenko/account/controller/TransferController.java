@@ -8,10 +8,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import ru.goncharenko.account.service.TransferService;
-import ru.goncharenko.bankclient.model.TransferCashDto;
-import ru.goncharenko.bankclient.response.SuccessResponse;
+import ru.goncharenko.bankclient.common.model.TransferCashDto;
+import ru.goncharenko.bankclient.common.response.SuccessResponse;
 
-import static ru.goncharenko.bankclient.endpoint.Endpoints.*;
+import static ru.goncharenko.bankclient.common.endpoint.Endpoints.ACCOUNT_BASE_URL;
+import static ru.goncharenko.bankclient.common.endpoint.Endpoints.TRANSFER;
 
 @RestController
 @RequestMapping(ACCOUNT_BASE_URL)

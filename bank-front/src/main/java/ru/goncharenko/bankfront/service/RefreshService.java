@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.servlet.ModelAndView;
-import ru.goncharenko.bankclient.exception.ValidationException;
-import ru.goncharenko.bankclient.model.AccountDto;
-import ru.goncharenko.bankclient.model.AccountListDto;
+import ru.goncharenko.bankclient.common.exception.ValidationException;
+import ru.goncharenko.bankclient.common.model.AccountDto;
+import ru.goncharenko.bankclient.common.model.AccountListDto;
 
 import java.util.ArrayList;
 import java.util.List;

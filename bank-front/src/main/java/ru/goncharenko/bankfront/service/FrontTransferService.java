@@ -5,13 +5,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
-import ru.goncharenko.bankclient.service.RestClientService;
-import ru.goncharenko.bankclient.model.BalanceDto;
-import ru.goncharenko.bankclient.model.TransferCashDto;
+import ru.goncharenko.bankclient.web.service.RestClientService;
+import ru.goncharenko.bankclient.common.model.BalanceDto;
+import ru.goncharenko.bankclient.common.model.TransferCashDto;
 import ru.goncharenko.bankfront.config.security.utils.SecurityUtils;
 
-import static ru.goncharenko.bankclient.endpoint.Endpoints.TRANSFER_BASE_URL;
-import static ru.goncharenko.bankclient.endpoint.Endpoints.TRANSFER_GATEWAY;
+import static ru.goncharenko.bankclient.common.endpoint.Endpoints.TRANSFER_BASE_URL;
+import static ru.goncharenko.bankclient.common.endpoint.Endpoints.TRANSFER_GATEWAY;
 
 @Slf4j
 @Service

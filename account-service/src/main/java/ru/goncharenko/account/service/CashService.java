@@ -10,8 +10,8 @@ import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 import ru.goncharenko.account.model.entity.Account;
 import ru.goncharenko.account.repository.AccountRepository;
-import ru.goncharenko.bankclient.model.BalanceDto;
-import ru.goncharenko.bankclient.model.DepositOrWithdrawDto;
+import ru.goncharenko.bankclient.common.model.BalanceDto;
+import ru.goncharenko.bankclient.common.model.DepositOrWithdrawDto;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

@@ -17,7 +17,7 @@ import reactor.core.publisher.Flux;
 import java.util.List;
 import java.util.Map;
 
-import static ru.goncharenko.bankclient.endpoint.Endpoints.*;
+import static ru.goncharenko.bankclient.common.endpoint.Endpoints.*;
 
 @Configuration
 @EnableWebFluxSecurity

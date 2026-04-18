@@ -5,7 +5,7 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import ru.goncharenko.notification.model.entity.Notification;
-import ru.goncharenko.bankclient.model.NotificationDto;
+import ru.goncharenko.bankclient.common.model.NotificationDto;
 
 @Mapper(
 		nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,

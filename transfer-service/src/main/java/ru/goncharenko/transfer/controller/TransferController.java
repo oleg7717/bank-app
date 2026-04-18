@@ -6,11 +6,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-import ru.goncharenko.bankclient.model.TransferCashDto;
-import ru.goncharenko.bankclient.response.SuccessResponse;
+import ru.goncharenko.bankclient.common.model.TransferCashDto;
+import ru.goncharenko.bankclient.common.response.SuccessResponse;
 import ru.goncharenko.transfer.service.TransferService;
 
-import static ru.goncharenko.bankclient.endpoint.Endpoints.TRANSFER_BASE_URL;
+import static ru.goncharenko.bankclient.common.endpoint.Endpoints.TRANSFER_BASE_URL;
 
 @RestController
 @RequestMapping(TRANSFER_BASE_URL)

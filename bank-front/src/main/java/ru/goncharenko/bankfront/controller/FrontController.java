@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import ru.goncharenko.bankclient.enums.CashAction;
+import ru.goncharenko.bankclient.common.enums.CashAction;
 import ru.goncharenko.bankfront.service.FrontAccountService;
 import ru.goncharenko.bankfront.service.FrontCashService;
 import ru.goncharenko.bankfront.service.FrontTransferService;

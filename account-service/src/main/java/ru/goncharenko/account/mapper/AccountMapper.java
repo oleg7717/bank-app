@@ -7,8 +7,8 @@ import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import ru.goncharenko.account.model.entity.Account;
-import ru.goncharenko.bankclient.model.AccountDto;
-import ru.goncharenko.bankclient.model.AccountListDto;
+import ru.goncharenko.bankclient.common.model.AccountDto;
+import ru.goncharenko.bankclient.common.model.AccountListDto;
 
 @Mapper(
 		nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,

@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import ru.goncharenko.notification.model.entity.Notification;
 import ru.goncharenko.notification.service.NotificationService;
-import ru.goncharenko.bankclient.model.NotificationDto;
+import ru.goncharenko.bankclient.common.model.NotificationDto;
 
-import static ru.goncharenko.bankclient.endpoint.Endpoints.NOTIFICATION_BASE_URL;
+import static ru.goncharenko.bankclient.common.endpoint.Endpoints.NOTIFICATION_BASE_URL;
 
 @RestController
 @RequestMapping(NOTIFICATION_BASE_URL)

@@ -8,10 +8,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import ru.goncharenko.account.service.CashService;
-import ru.goncharenko.bankclient.model.BalanceDto;
-import ru.goncharenko.bankclient.model.DepositOrWithdrawDto;
+import ru.goncharenko.bankclient.common.model.BalanceDto;
+import ru.goncharenko.bankclient.common.model.DepositOrWithdrawDto;
 
-import static ru.goncharenko.bankclient.endpoint.Endpoints.*;
+import static ru.goncharenko.bankclient.common.endpoint.Endpoints.ACCOUNT_BASE_URL;
+import static ru.goncharenko.bankclient.common.endpoint.Endpoints.CASH;
 
 @RestController
 @RequestMapping(ACCOUNT_BASE_URL)

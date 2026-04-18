@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 import ru.goncharenko.notification.mapper.NotificationMapper;
 import ru.goncharenko.notification.model.entity.Notification;
 import ru.goncharenko.notification.repository.NotificationRepository;
-import ru.goncharenko.bankclient.model.NotificationDto;
+import ru.goncharenko.bankclient.common.model.NotificationDto;
 
 @Service
 @RequiredArgsConstructor

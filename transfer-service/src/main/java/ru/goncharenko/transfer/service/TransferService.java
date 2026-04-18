@@ -5,14 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import ru.goncharenko.bankclient.model.TransferCashDto;
-import ru.goncharenko.bankclient.response.SuccessResponse;
-import ru.goncharenko.bankclient.service.NotificationSendService;
-import ru.goncharenko.bankclient.service.WebClientService;
-import ru.goncharenko.bankclient.utils.SecurityUtils;
+import ru.goncharenko.bankclient.common.model.TransferCashDto;
+import ru.goncharenko.bankclient.common.response.SuccessResponse;
+import ru.goncharenko.bankclient.reactive.service.NotificationSendService;
+import ru.goncharenko.bankclient.reactive.service.WebClientService;
+import ru.goncharenko.bankclient.reactive.utils.SecurityUtils;
 
-import static ru.goncharenko.bankclient.endpoint.Endpoints.ACCOUNT_BASE_URL;
-import static ru.goncharenko.bankclient.endpoint.Endpoints.TRANSFER;
+import static ru.goncharenko.bankclient.common.endpoint.Endpoints.ACCOUNT_BASE_URL;
+import static ru.goncharenko.bankclient.common.endpoint.Endpoints.TRANSFER;
 
 @Slf4j
 @Service

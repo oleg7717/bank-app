@@ -8,11 +8,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.RestClientException;
-import ru.goncharenko.bankclient.exception.ValidationException;
-import ru.goncharenko.bankclient.model.AccountDto;
-import ru.goncharenko.bankclient.model.AccountListDto;
-import ru.goncharenko.bankclient.model.AccountModifyDto;
-import ru.goncharenko.bankclient.service.RestClientService;
+import ru.goncharenko.bankclient.common.exception.ValidationException;
+import ru.goncharenko.bankclient.common.model.AccountDto;
+import ru.goncharenko.bankclient.common.model.AccountListDto;
+import ru.goncharenko.bankclient.common.model.AccountModifyDto;
+import ru.goncharenko.bankclient.web.service.RestClientService;
 import ru.goncharenko.bankfront.config.security.utils.SecurityUtils;
 
 import java.time.LocalDate;

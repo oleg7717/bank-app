@@ -6,18 +6,18 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
-import ru.goncharenko.bankclient.service.RestClientService;
-import ru.goncharenko.bankclient.model.AccountDto;
-import ru.goncharenko.bankclient.model.AccountListDto;
-import ru.goncharenko.bankclient.model.AccountModifyDto;
-import ru.goncharenko.bankclient.exception.ValidationException;
+import ru.goncharenko.bankclient.web.service.RestClientService;
+import ru.goncharenko.bankclient.common.model.AccountDto;
+import ru.goncharenko.bankclient.common.model.AccountListDto;
+import ru.goncharenko.bankclient.common.model.AccountModifyDto;
+import ru.goncharenko.bankclient.common.exception.ValidationException;
 import ru.goncharenko.bankfront.config.security.utils.SecurityUtils;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static ru.goncharenko.bankclient.endpoint.Endpoints.*;
+import static ru.goncharenko.bankclient.common.endpoint.Endpoints.*;
 
 @Slf4j
 @Service

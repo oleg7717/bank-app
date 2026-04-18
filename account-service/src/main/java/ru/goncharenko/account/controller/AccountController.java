@@ -10,12 +10,13 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.goncharenko.account.service.AccountService;
-import ru.goncharenko.bankclient.model.AccountDto;
-import ru.goncharenko.bankclient.model.AccountListDto;
-import ru.goncharenko.bankclient.model.AccountModifyDto;
+import ru.goncharenko.bankclient.common.model.AccountDto;
+import ru.goncharenko.bankclient.common.model.AccountListDto;
+import ru.goncharenko.bankclient.common.model.AccountModifyDto;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
-import static ru.goncharenko.bankclient.endpoint.Endpoints.*;
+import static ru.goncharenko.bankclient.common.endpoint.Endpoints.ACCOUNT_BASE_URL;
+import static ru.goncharenko.bankclient.common.endpoint.Endpoints.ACCOUNT_LIST;
 
 @RestController
 @RequestMapping(ACCOUNT_BASE_URL)

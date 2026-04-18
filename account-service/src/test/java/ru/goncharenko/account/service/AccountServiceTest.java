@@ -14,14 +14,14 @@ import reactor.test.StepVerifier;
 import ru.goncharenko.account.mapper.AccountMapper;
 import ru.goncharenko.account.model.entity.Account;
 import ru.goncharenko.account.repository.AccountRepository;
-import ru.goncharenko.bankclient.exception.NotFoundException;
-import ru.goncharenko.bankclient.exception.NotificationServiceException;
-import ru.goncharenko.bankclient.exception.ValidationException;
-import ru.goncharenko.bankclient.model.AccountDto;
-import ru.goncharenko.bankclient.model.AccountListDto;
-import ru.goncharenko.bankclient.model.AccountModifyDto;
-import ru.goncharenko.bankclient.service.NotificationSendService;
-import ru.goncharenko.bankclient.utils.SecurityUtils;
+import ru.goncharenko.bankclient.common.exception.NotFoundException;
+import ru.goncharenko.bankclient.common.exception.NotificationServiceException;
+import ru.goncharenko.bankclient.common.exception.ValidationException;
+import ru.goncharenko.bankclient.common.model.AccountDto;
+import ru.goncharenko.bankclient.common.model.AccountListDto;
+import ru.goncharenko.bankclient.common.model.AccountModifyDto;
+import ru.goncharenko.bankclient.reactive.service.NotificationSendService;
+import ru.goncharenko.bankclient.reactive.utils.SecurityUtils;
 
 import java.time.LocalDate;
 
