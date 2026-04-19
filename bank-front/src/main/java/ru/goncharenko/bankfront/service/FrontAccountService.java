@@ -6,11 +6,11 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
+import ru.goncharenko.bankclient.common.model.ClientDto;
+import ru.goncharenko.bankclient.common.model.ClientListDto;
+import ru.goncharenko.bankclient.common.model.ClientModifyDto;
 import ru.goncharenko.bankclient.web.config.utils.SecurityUtils;
 import ru.goncharenko.bankclient.web.service.RestClientService;
-import ru.goncharenko.bankclient.common.model.AccountDto;
-import ru.goncharenko.bankclient.common.model.AccountListDto;
-import ru.goncharenko.bankclient.common.model.AccountModifyDto;
 import ru.goncharenko.bankclient.common.exception.ValidationException;
 
 import java.time.LocalDate;
@@ -35,9 +35,9 @@ public class FrontAccountService {
 	}
 
 	@PreAuthorize("hasRole('account_viewer')")
-	public AccountDto getAccount() {
+	public ClientDto getAccount() {
 		try {
-			return restClient.getForObject(accountBaseUrl, AccountDto.class);
+			return restClient.getForObject(accountBaseUrl, ClientDto.class);
 		} catch (RestClientException ex) {
 			log.error("RestClient error: {}", ex.getMessage());
 
@@ -46,7 +46,7 @@ public class FrontAccountService {
 	}
 
 	@PreAuthorize("hasRole('account_viewer')")
-	public List<AccountListDto> getAccountsForTransfer() {
+	public List<ClientListDto> getAccountsForTransfer() {
 		try {
 			return restClient.getForObject(accountBaseUrl + ACCOUNT_LIST, new ParameterizedTypeReference<>() {});
 		} catch (RestClientException ex) {
@@ -69,12 +69,12 @@ public class FrontAccountService {
 			}
 			String surname = usernameArray[0];
 			String firstname = usernameArray[1];
-			AccountModifyDto modifyDto = AccountModifyDto.builder()
+			ClientModifyDto modifyDto = ClientModifyDto.builder()
 					.firstname(firstname)
 					.surname(surname)
 					.birthdate(birthdate)
 					.build();
-			restClient.postForObject(accountBaseUrl + "/" + login, modifyDto, AccountDto.class);
+			restClient.postForObject(accountBaseUrl + "/" + login, modifyDto, ClientDto.class);
 		} catch (RestClientException ex) {
 			log.error("RestClient error: {}", ex.getMessage());
 

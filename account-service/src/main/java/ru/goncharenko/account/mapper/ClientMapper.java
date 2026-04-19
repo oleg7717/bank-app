@@ -6,24 +6,24 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
-import ru.goncharenko.account.model.Account;
-import ru.goncharenko.bankclient.common.model.AccountDto;
-import ru.goncharenko.bankclient.common.model.AccountListDto;
+import ru.goncharenko.account.model.Client;
+import ru.goncharenko.bankclient.common.model.ClientDto;
+import ru.goncharenko.bankclient.common.model.ClientListDto;
 
 @Mapper(
 		nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
 		componentModel = MappingConstants.ComponentModel.SPRING,
 		unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
-public interface AccountMapper {
-	AccountDto mapToDto(Account account);
+public interface ClientMapper {
+	ClientDto mapToDto(Client client);
 
 	@Mapping(source = ".", target = "name", qualifiedByName = "concatName")
-	AccountListDto mapToList(Account account);
+	ClientListDto mapToList(Client client);
 
 	@Named("concatName")
-	default String concatName(Account account) {
-		if (account == null) return null;
-		return account.getSurname() + " " + account.getFirstname();
+	default String concatName(Client client) {
+		if (client == null) return null;
+		return client.getSurname() + " " + client.getFirstname();
 	}
 }

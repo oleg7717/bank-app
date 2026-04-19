@@ -6,12 +6,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Setter
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountListDto {
+public class ClientDto {
 	private String login;
-	private String name;
+	private String firstname;
+	private String surname;
+	private LocalDate birthdate;
+	private Double balance;
 }

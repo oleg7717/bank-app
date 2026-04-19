@@ -11,14 +11,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.goncharenko.account.mapper.AccountMapper;
-import ru.goncharenko.account.repository.AccountRepository;
+import ru.goncharenko.account.mapper.ClientMapper;
+import ru.goncharenko.account.repository.ClientRepository;
 import ru.goncharenko.bankclient.common.exception.NotFoundException;
 import ru.goncharenko.bankclient.common.exception.NotificationServiceException;
 import ru.goncharenko.bankclient.common.exception.ValidationException;
-import ru.goncharenko.bankclient.common.model.AccountDto;
-import ru.goncharenko.bankclient.common.model.AccountListDto;
-import ru.goncharenko.bankclient.common.model.AccountModifyDto;
+import ru.goncharenko.bankclient.common.model.ClientDto;
+import ru.goncharenko.bankclient.common.model.ClientListDto;
+import ru.goncharenko.bankclient.common.model.ClientModifyDto;
 import ru.goncharenko.bankclient.reactive.service.NotificationSendService;
 import ru.goncharenko.bankclient.reactive.utils.SecurityUtils;
 
@@ -31,19 +31,19 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class AccountService {
 	private final SecurityUtils securityUtils;
-	private final AccountRepository repository;
-	private final AccountMapper accountMapper;
+	private final ClientRepository repository;
+	private final ClientMapper clientMapper;
 	private final NotificationSendService notificationSendService;
 
 	@Setter
 	@Value("${spring.application.name}")
 	private String service;
 
-	public Mono<ResponseEntity<AccountDto>> getAccount() {
+	public Mono<ResponseEntity<ClientDto>> getClientData() {
 		return securityUtils.getCurrentUsername()
 				.flatMap(userName ->
 						repository.findByLogin(userName)
-								.map(accountMapper::mapToDto)
+								.map(clientMapper::mapToDto)
 								.flatMap(account -> Mono.just(ResponseEntity.ok()
 										.body(account)))
 								.switchIfEmpty(
@@ -55,7 +55,7 @@ public class AccountService {
 	}
 
 	@Transactional(noRollbackFor = NotificationServiceException.class)
-	public Mono<ResponseEntity<AccountDto>> modifyAccount(Mono<AccountModifyDto> accountModifyDto, String login) {
+	public Mono<ResponseEntity<ClientDto>> modifyPersonalData(Mono<ClientModifyDto> accountModifyDto, String login) {
 		return securityUtils.getCurrentUsername().flatMap(userName ->
 				repository.findByLogin(login).flatMap(account ->
 				accountModifyDto.flatMap(accountModify -> {
@@ -77,7 +77,7 @@ public class AccountService {
 											accountModify.getBirthdate(),
 											login)
 									.flatMap(updated -> repository.findByLogin(login)
-											.map(accountMapper::mapToDto)
+											.map(clientMapper::mapToDto)
 											.flatMap(accountDto ->
 												notificationSendService.sendNotification(
 														service,
@@ -87,7 +87,7 @@ public class AccountService {
 												.onErrorResume(error ->
 														// Данные сохранены, но возвращаем ошибку уведомления
 														Mono.error(new NotificationServiceException(
-																"Account updated, but notification send failed"
+																"Client updated, but notification send failed"
 														))
 												)
 											)
@@ -102,7 +102,7 @@ public class AccountService {
 		);
 	}
 
-	public Flux<AccountListDto> getAllAccounts() {
-		return repository.findAll().map(accountMapper::mapToList);
+	public Flux<ClientListDto> getClientsListForTransfer() {
+		return repository.findAll().map(clientMapper::mapToList);
 	}
 }

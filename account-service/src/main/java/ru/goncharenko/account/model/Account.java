@@ -8,8 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-
-import java.time.LocalDate;
+import ru.goncharenko.account.model.enums.Currency;
 
 @Table(name = "accounts")
 @Setter
@@ -21,18 +20,18 @@ public class Account {
 	@Id
 	private Long id;
 
-	@Column("login")
-	private String login;
+	@Column("client_id")
+	private String clientId;
 
-	@Column("firstname")
-	private String firstname;
+	@Column("status")
+	private String status;
 
-	@Column("surname")
-	private String surname;
-
-	@Column("birthdate")
-	private LocalDate birthdate;
+	@Column("main")
+	private Boolean main;
 
 	@Column("balance")
 	private Double balance;
+
+	@Column("currency")
+	private Currency currency;
 }

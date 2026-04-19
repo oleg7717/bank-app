@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.servlet.ModelAndView;
 import ru.goncharenko.bankclient.common.exception.ValidationException;
-import ru.goncharenko.bankclient.common.model.AccountDto;
-import ru.goncharenko.bankclient.common.model.AccountListDto;
+import ru.goncharenko.bankclient.common.model.ClientDto;
+import ru.goncharenko.bankclient.common.model.ClientListDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +35,8 @@ public class RefreshService {
 	}
 
 	public ModelAndView getPageData() {
-		AccountDto account = null;
-		List<AccountListDto> accountList = null;
+		ClientDto account = null;
+		List<ClientListDto> accountList = null;
 		List<String> errors = new ArrayList<>();
 
 		try {
@@ -54,7 +54,7 @@ public class RefreshService {
 		return fillModel(account, accountList, errors);
 	}
 
-	private ModelAndView fillModel(AccountDto account, List<AccountListDto> accountList, List<String> errors) {
+	private ModelAndView fillModel(ClientDto account, List<ClientListDto> accountList, List<String> errors) {
 		ModelAndView model = new ModelAndView("main");
 
 		if (account != null) {

@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
-import ru.goncharenko.account.model.Account;
-import ru.goncharenko.account.repository.AccountRepository;
+import ru.goncharenko.account.model.Client;
+import ru.goncharenko.account.repository.ClientRepository;
 import ru.goncharenko.bankclient.common.model.BalanceDto;
 import ru.goncharenko.bankclient.common.model.DepositOrWithdrawDto;
 
@@ -19,12 +19,12 @@ import java.math.RoundingMode;
 @Service
 @RequiredArgsConstructor
 public class CashService {
-	private final AccountRepository accountRepository;
+	private final ClientRepository clientRepository;
 
 	@PreAuthorize("hasRole('cash_deposit_or_withdraw')")
 	@Transactional
 	public Mono<ResponseEntity<BalanceDto>> depositOrWithdraw(Mono<DepositOrWithdrawDto> depositOrWithdrawDto) {
-		return depositOrWithdrawDto.flatMap(dto -> accountRepository
+		return depositOrWithdrawDto.flatMap(dto -> clientRepository
 				.findByLogin(dto.getLogin())
 				.flatMap(account -> {
 					String login = dto.getLogin();
@@ -42,7 +42,7 @@ public class CashService {
 					}
 
 					Double changedBalance = account.getBalance();
-					return accountRepository.updateBalance(changedBalance, login)
+					return clientRepository.updateBalance(changedBalance, login)
 							.flatMap(accountDto -> Mono.just(ResponseEntity.ok()
 									.body(new BalanceDto(changedBalance)))
 							);
@@ -50,16 +50,16 @@ public class CashService {
 		);
 	}
 
-	private void decrease(Account account, Double amount) {
-		account.setBalance(BigDecimal.valueOf(account.getBalance())
+	private void decrease(Client client, Double amount) {
+		client.setBalance(BigDecimal.valueOf(client.getBalance())
 				.subtract(BigDecimal.valueOf(amount))
 				.setScale(2, RoundingMode.HALF_UP)
 				.doubleValue()
 		);
 	}
 
-	private void increase(Account account, Double amount) {
-		account.setBalance(BigDecimal.valueOf(account.getBalance())
+	private void increase(Client client, Double amount) {
+		client.setBalance(BigDecimal.valueOf(client.getBalance())
 				.add(BigDecimal.valueOf(amount))
 				.setScale(2, RoundingMode.HALF_UP)
 				.doubleValue());

@@ -9,9 +9,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.RestClientException;
 import ru.goncharenko.bankclient.common.exception.ValidationException;
-import ru.goncharenko.bankclient.common.model.AccountDto;
-import ru.goncharenko.bankclient.common.model.AccountListDto;
-import ru.goncharenko.bankclient.common.model.AccountModifyDto;
+import ru.goncharenko.bankclient.common.model.ClientDto;
+import ru.goncharenko.bankclient.common.model.ClientListDto;
+import ru.goncharenko.bankclient.common.model.ClientModifyDto;
 import ru.goncharenko.bankclient.web.service.RestClientService;
 import ru.goncharenko.bankclient.web.config.utils.SecurityUtils;
 
@@ -34,14 +34,14 @@ class FrontAccountServiceTest {
 	@InjectMocks
 	private FrontAccountService frontAccountService;
 
-	private AccountDto testAccountDto;
-	private AccountListDto testAccountListDto;
+	private ClientDto testClientDto;
+	private ClientListDto testClientListDto;
 	private final String TEST_LOGIN = "o.goncharenko";
 	private final String TEST_NAME = "Oleg Goncharenko";
 
 	@BeforeEach
 	void setUp() {
-		testAccountDto = AccountDto.builder()
+		testClientDto = ClientDto.builder()
 				.login(TEST_LOGIN)
 				.firstname("Oleg")
 				.surname("Goncharenko")
@@ -49,17 +49,17 @@ class FrontAccountServiceTest {
 				.balance(1000.0)
 				.build();
 
-		testAccountListDto = AccountListDto.builder()
+		testClientListDto = ClientListDto.builder()
 				.login(TEST_LOGIN)
 				.build();
 	}
 
 	@Test
 	void getAccount_Success() {
-		when(restClient.getForObject(anyString(), eq(AccountDto.class)))
-				.thenReturn(testAccountDto);
+		when(restClient.getForObject(anyString(), eq(ClientDto.class)))
+				.thenReturn(testClientDto);
 
-		AccountDto result = frontAccountService.getAccount();
+		ClientDto result = frontAccountService.getAccount();
 
 		assertNotNull(result);
 		assertEquals(TEST_LOGIN, result.getLogin());
@@ -67,27 +67,27 @@ class FrontAccountServiceTest {
 		assertEquals("Goncharenko", result.getSurname());
 		assertEquals(1000.0, result.getBalance());
 
-		verify(restClient).getForObject(anyString(), eq(AccountDto.class));
+		verify(restClient).getForObject(anyString(), eq(ClientDto.class));
 	}
 
 	@Test
 	void getAccount_RestClientException_ThrowsException() {
-		when(restClient.getForObject(anyString(), eq(AccountDto.class)))
+		when(restClient.getForObject(anyString(), eq(ClientDto.class)))
 				.thenThrow(new RestClientException("Service unavailable"));
 
 		assertThrows(RestClientException.class, () -> frontAccountService.getAccount());
 
-		verify(restClient).getForObject(anyString(), eq(AccountDto.class));
+		verify(restClient).getForObject(anyString(), eq(ClientDto.class));
 	}
 
 	@Test
 	void getAccountsForTransfer_Success() {
-		List<AccountListDto> expectedList = List.of(testAccountListDto);
+		List<ClientListDto> expectedList = List.of(testClientListDto);
 
 		when(restClient.getForObject(anyString(), any(ParameterizedTypeReference.class)))
 				.thenReturn(expectedList);
 
-		List<AccountListDto> result = frontAccountService.getAccountsForTransfer();
+		List<ClientListDto> result = frontAccountService.getAccountsForTransfer();
 
 		assertNotNull(result);
 		assertEquals(1, result.size());
@@ -110,12 +110,12 @@ class FrontAccountServiceTest {
 	void modifyAccount_Success() {
 		LocalDate birthdate = LocalDate.of(1990, 1, 1);
 		when(securityUtils.getCurrentUsername()).thenReturn(TEST_LOGIN);
-		//doNothing().when(restClient).postForObject(anyString(), any(AccountModifyDto.class), eq(AccountDto.class));
+		//doNothing().when(restClient).postForObject(anyString(), any(ClientModifyDto.class), eq(ClientDto.class));
 
 		assertDoesNotThrow(() -> frontAccountService.modifyAccount(TEST_NAME, birthdate));
 
 		verify(securityUtils).getCurrentUsername();
-		verify(restClient).postForObject(anyString(), any(AccountModifyDto.class), eq(AccountDto.class));
+		verify(restClient).postForObject(anyString(), any(ClientModifyDto.class), eq(ClientDto.class));
 	}
 
 	@Test
@@ -137,11 +137,11 @@ class FrontAccountServiceTest {
 	void modifyAccount_Exactly18YearsOld_Success() {
 		LocalDate birthdate = LocalDate.now().minusYears(18);
 		when(securityUtils.getCurrentUsername()).thenReturn(TEST_LOGIN);
-		//doNothing().when(restClient).postForObject(anyString(), any(AccountModifyDto.class), eq(AccountDto.class));
+		//doNothing().when(restClient).postForObject(anyString(), any(ClientModifyDto.class), eq(ClientDto.class));
 
 		assertDoesNotThrow(() -> frontAccountService.modifyAccount(TEST_NAME, birthdate));
 
-		verify(restClient).postForObject(anyString(), any(AccountModifyDto.class), eq(AccountDto.class));
+		verify(restClient).postForObject(anyString(), any(ClientModifyDto.class), eq(ClientDto.class));
 	}
 
 	@Test
@@ -149,14 +149,14 @@ class FrontAccountServiceTest {
 		LocalDate birthdate = LocalDate.of(1990, 1, 1);
 		String invalidName = "SingleName";
 		when(securityUtils.getCurrentUsername()).thenReturn(TEST_LOGIN);
-		//doNothing().when(restClient).postForObject(anyString(), any(AccountModifyDto.class), eq(AccountDto.class));
+		//doNothing().when(restClient).postForObject(anyString(), any(ClientModifyDto.class), eq(ClientDto.class));
 
 		ValidationException exception = assertThrows(ValidationException.class,
 				() -> frontAccountService.modifyAccount(invalidName, birthdate)
 		);
 		assertTrue(exception.getMessage().contains("должно быть имя и фамилия"));
 
-		verify(restClient, never()).postForObject(anyString(), any(AccountModifyDto.class), eq(AccountDto.class));
+		verify(restClient, never()).postForObject(anyString(), any(ClientModifyDto.class), eq(ClientDto.class));
 	}
 
 	@Test
@@ -164,12 +164,12 @@ class FrontAccountServiceTest {
 		LocalDate birthdate = LocalDate.of(1990, 1, 1);
 		when(securityUtils.getCurrentUsername()).thenReturn(TEST_LOGIN);
 		doThrow(new RestClientException("Service error"))
-				.when(restClient).postForObject(anyString(), any(AccountModifyDto.class), eq(AccountDto.class));
+				.when(restClient).postForObject(anyString(), any(ClientModifyDto.class), eq(ClientDto.class));
 
 		assertThrows(RestClientException.class,
 				() -> frontAccountService.modifyAccount(TEST_NAME, birthdate)
 		);
 
-		verify(restClient).postForObject(anyString(), any(AccountModifyDto.class), eq(AccountDto.class));
+		verify(restClient).postForObject(anyString(), any(ClientModifyDto.class), eq(ClientDto.class));
 	}
 }

@@ -6,15 +6,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
-
 @Setter
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountModifyDto {
-	private String firstname;
-	private String surname;
-	private LocalDate birthdate;
+public class ClientListDto {
+	private String login;
+	private String name;
 }

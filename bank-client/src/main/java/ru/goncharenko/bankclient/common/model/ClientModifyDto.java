@@ -13,10 +13,8 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AccountDto {
-	private String login;
+public class ClientModifyDto {
 	private String firstname;
 	private String surname;
 	private LocalDate birthdate;
-	private Double balance;
 }

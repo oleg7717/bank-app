@@ -5,7 +5,7 @@ databaseChangeLog:
       changes:
         - insert:
             schemaName: account
-            tableName: accounts
+            tableName: clients
             columns:
               - column:
                   name: login
@@ -24,7 +24,7 @@ databaseChangeLog:
                   valueNumeric: 273861.17
         - insert:
             schemaName: account
-            tableName: accounts
+            tableName: clients
             columns:
               - column:
                   name: login
@@ -43,7 +43,7 @@ databaseChangeLog:
                   valueNumeric: 124567.89
         - insert:
             schemaName: account
-            tableName: accounts
+            tableName: clients
             columns:
               - column:
                   name: login
