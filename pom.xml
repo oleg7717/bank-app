@@ -36,7 +36,8 @@
         <module>transfer-service</module>
         <module>cash-service</module>
         <module>antifraud-service</module>
-
+        <module>exchange-service</module>
+        <module>exchange-generator</module>
         <module>notification-service</module>
 
 

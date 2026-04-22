@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-import ru.goncharenko.account.model.enums.Currency;
 
 @Table(name = "accounts")
 @Setter
@@ -33,5 +32,5 @@ public class Account {
 	private Double balance;
 
 	@Column("currency")
-	private Currency currency;
+	private String currency;
 }
