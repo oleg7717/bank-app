@@ -2,8 +2,8 @@ package ru.goncharenko.bankclient.common.mapper;
 
 import org.springframework.stereotype.Component;
 import ru.goncharenko.bankclient.common.model.AntifraudDto;
-import ru.goncharenko.bankclient.common.model.DepositOrWithdrawDto;
-import ru.goncharenko.bankclient.common.model.TransferCashDto;
+import ru.goncharenko.bankclient.common.model.cashoperation.DepositOrWithdrawDto;
+import ru.goncharenko.bankclient.common.model.cashoperation.TransferCashDto;
 
 @Component
 public class AntifraudMapper {

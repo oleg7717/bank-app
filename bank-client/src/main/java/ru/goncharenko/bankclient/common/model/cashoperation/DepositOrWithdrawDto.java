@@ -1,22 +1,19 @@
-package ru.goncharenko.bankclient.common.model;
+package ru.goncharenko.bankclient.common.model.cashoperation;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDate;
+import ru.goncharenko.bankclient.common.enums.CashAction;
 
 @Setter
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClientDto {
+public class DepositOrWithdrawDto {
 	private String login;
-	private String firstname;
-	private String surname;
-	private LocalDate birthdate;
-	private Double balance;
+	private Double amount;
+	private CashAction action;
 }

@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import ru.goncharenko.bankclient.common.model.TransferCashDto;
+import ru.goncharenko.bankclient.common.model.cashoperation.TransferCashDto;
 import ru.goncharenko.bankclient.common.response.SuccessResponse;
 import ru.goncharenko.bankclient.reactive.service.AntifraudSendService;
 import ru.goncharenko.bankclient.reactive.service.NotificationSendService;

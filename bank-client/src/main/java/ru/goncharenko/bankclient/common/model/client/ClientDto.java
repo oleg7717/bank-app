@@ -1,4 +1,4 @@
-package ru.goncharenko.bankclient.common.model;
+package ru.goncharenko.bankclient.common.model.client;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,8 +13,10 @@ import java.time.LocalDate;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClientModifyDto {
+public class ClientDto {
+	private String login;
 	private String firstname;
 	private String surname;
 	private LocalDate birthdate;
+	private Double balance;
 }

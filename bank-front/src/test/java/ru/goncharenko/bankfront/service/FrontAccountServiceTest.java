@@ -9,9 +9,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.RestClientException;
 import ru.goncharenko.bankclient.common.exception.ValidationException;
-import ru.goncharenko.bankclient.common.model.ClientDto;
-import ru.goncharenko.bankclient.common.model.ClientListDto;
-import ru.goncharenko.bankclient.common.model.ClientModifyDto;
+import ru.goncharenko.bankclient.common.model.client.ClientDto;
+import ru.goncharenko.bankclient.common.model.client.ClientListDto;
+import ru.goncharenko.bankclient.common.model.client.ClientModifyDto;
 import ru.goncharenko.bankclient.web.service.RestClientService;
 import ru.goncharenko.bankclient.web.config.utils.SecurityUtils;
 

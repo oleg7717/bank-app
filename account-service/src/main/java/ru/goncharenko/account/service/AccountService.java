@@ -8,17 +8,29 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import ru.goncharenko.account.exception.AccountAlreadyExist;
+import ru.goncharenko.account.mapper.AccountMapper;
 import ru.goncharenko.account.mapper.ClientMapper;
+import ru.goncharenko.account.model.Account;
+import ru.goncharenko.account.model.Client;
+import ru.goncharenko.account.model.enums.AccountStatus;
+import ru.goncharenko.account.model.enums.ClientStatus;
+import ru.goncharenko.account.repository.AccountRepository;
 import ru.goncharenko.account.repository.ClientRepository;
+import ru.goncharenko.account.utils.Generator;
 import ru.goncharenko.bankclient.common.exception.NotFoundException;
 import ru.goncharenko.bankclient.common.exception.NotificationServiceException;
 import ru.goncharenko.bankclient.common.exception.ValidationException;
-import ru.goncharenko.bankclient.common.model.ClientDto;
-import ru.goncharenko.bankclient.common.model.ClientListDto;
-import ru.goncharenko.bankclient.common.model.ClientModifyDto;
+import ru.goncharenko.bankclient.common.model.account.AccountDto;
+import ru.goncharenko.bankclient.common.model.account.CreateAccountDto;
+import ru.goncharenko.bankclient.common.model.client.ClientDto;
+import ru.goncharenko.bankclient.common.model.client.ClientListDto;
+import ru.goncharenko.bankclient.common.model.client.ClientModifyDto;
+import ru.goncharenko.bankclient.common.model.client.CreateClientDto;
 import ru.goncharenko.bankclient.reactive.service.NotificationSendService;
 import ru.goncharenko.bankclient.reactive.utils.SecurityUtils;
 
@@ -30,19 +42,62 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 public class AccountService {
-	private final SecurityUtils securityUtils;
-	private final ClientRepository repository;
+	private final ClientRepository clientRepository;
+	private final AccountRepository accountRepository;
+
 	private final ClientMapper clientMapper;
+	private final AccountMapper accountMapper;
+
 	private final NotificationSendService notificationSendService;
+
+	private final TransactionalOperator transactionalOperator;
+	private final SecurityUtils securityUtils;
+	private final Generator generator;
 
 	@Setter
 	@Value("${spring.application.name}")
 	private String service;
 
+	@Transactional
+	public Mono<ResponseEntity<ClientDto>> createClient(Mono<CreateClientDto> clientDto) {
+		return clientDto
+				.flatMap(dto -> {
+					String login = generator.generateLogin(dto.getFirstname(), dto.getSurname());
+					return clientRepository.findByLogin(login)
+							.flatMap(existingClient ->
+									Mono.just(ResponseEntity.ok(clientMapper.mapToDto(existingClient)))
+							)
+							.switchIfEmpty(
+									Mono.defer(() -> {
+										Client newClient = clientMapper.mapToEntity(dto);
+										newClient.setStatus(ClientStatus.ACTIVE);
+										newClient.setLogin(login);
+										return clientRepository.save(newClient)
+												.flatMap(savedClient -> {
+													Account account = Account.builder()
+															.clientId(savedClient.getId())
+															.status(AccountStatus.ACTIVE)
+															.main(true)
+															.balance(0.0)
+															.currency("RUB")
+															.build();
+													return accountRepository.save(account)
+															.thenReturn(
+																	ResponseEntity
+																			.status(HttpStatus.CREATED)
+																			.body(clientMapper.mapToDto(savedClient))
+															);
+												});
+									})
+							);
+				})
+				.as(transactionalOperator::transactional);
+	}
+
 	public Mono<ResponseEntity<ClientDto>> getClientData() {
 		return securityUtils.getCurrentUsername()
 				.flatMap(userName ->
-						repository.findByLogin(userName)
+						clientRepository.findByLogin(userName)
 								.map(clientMapper::mapToDto)
 								.flatMap(account -> Mono.just(ResponseEntity.ok()
 										.body(account)))
@@ -57,44 +112,44 @@ public class AccountService {
 	@Transactional(noRollbackFor = NotificationServiceException.class)
 	public Mono<ResponseEntity<ClientDto>> modifyPersonalData(Mono<ClientModifyDto> accountModifyDto, String login) {
 		return securityUtils.getCurrentUsername().flatMap(userName ->
-				repository.findByLogin(login).flatMap(account ->
-				accountModifyDto.flatMap(accountModify -> {
-							if (!Objects.equals(account.getLogin(), userName)) {
-								return Mono.error(new ResponseStatusException(
-										HttpStatus.BAD_REQUEST,
-										String.format("Пользователь %s не может менять данные другого аккаунта", userName)
-								));
-							}
-							if (accountModify.getBirthdate().until(LocalDate.now(), ChronoUnit.YEARS) < 18) {
-								return Mono.error(new ValidationException(
-										"Пользователь не может быть младше 18 лет"
-								));
-							}
+				clientRepository.findByLogin(login).flatMap(account ->
+						accountModifyDto.flatMap(accountModify -> {
+									if (!Objects.equals(account.getLogin(), userName)) {
+										return Mono.error(new ResponseStatusException(
+												HttpStatus.BAD_REQUEST,
+												String.format("Пользователь %s не может менять данные другого аккаунта", userName)
+										));
+									}
+									if (accountModify.getBirthdate().until(LocalDate.now(), ChronoUnit.YEARS) < 18) {
+										return Mono.error(new ValidationException(
+												"Пользователь не может быть младше 18 лет"
+										));
+									}
 
-							return repository.updateAccount(
-											accountModify.getFirstname(),
-											accountModify.getSurname(),
-											accountModify.getBirthdate(),
-											login)
-									.flatMap(updated -> repository.findByLogin(login)
-											.map(clientMapper::mapToDto)
-											.flatMap(accountDto ->
-												notificationSendService.sendNotification(
-														service,
-														"Персональные данные обновлены успешно"
-												)
-												.thenReturn(ResponseEntity.ok().body(accountDto))
-												.onErrorResume(error ->
-														// Данные сохранены, но возвращаем ошибку уведомления
-														Mono.error(new NotificationServiceException(
-																"Client updated, but notification send failed"
-														))
-												)
-											)
-									);
-						}
+									return clientRepository.updateAccount(
+													accountModify.getFirstname(),
+													accountModify.getSurname(),
+													accountModify.getBirthdate(),
+													login)
+											.flatMap(updated -> clientRepository.findByLogin(login)
+													.map(clientMapper::mapToDto)
+													.flatMap(accountDto ->
+															notificationSendService.sendNotification(
+																			service,
+																			"Персональные данные обновлены успешно"
+																	)
+																	.thenReturn(ResponseEntity.ok().body(accountDto))
+																	.onErrorResume(error ->
+																			// Данные сохранены, но возвращаем ошибку уведомления
+																			Mono.error(new NotificationServiceException(
+																					"Client updated, but notification send failed"
+																			))
+																	)
+													)
+											);
+								}
 
-				))
+						))
 		).switchIfEmpty(
 				Mono.error(new NotFoundException(
 						String.format("У пользователя %s нет аккаунта в банке ", login)
@@ -103,6 +158,46 @@ public class AccountService {
 	}
 
 	public Flux<ClientListDto> getClientsListForTransfer() {
-		return repository.findAll().map(clientMapper::mapToList);
+		return clientRepository.findAll().map(clientMapper::mapToList);
+	}
+
+	public Mono<ResponseEntity<AccountDto>> createAccount(Mono<CreateAccountDto> accountDto) {
+		return securityUtils.getCurrentUsername()
+				.flatMap(username -> clientRepository.findByLogin(username)
+						.switchIfEmpty(Mono.error(
+										new NotFoundException(String.
+												format("У пользователя %s нет аккаунта в банке ", username))
+								)
+						)
+						.flatMap(client -> accountDto
+								.flatMap(dto ->
+										accountRepository.getAccountByClientIdAndCurrency(
+														client.getId(),
+														dto.getCurrency()
+												)
+												.flatMap(account -> Mono.<ResponseEntity<AccountDto>>error(
+														new AccountAlreadyExist(String.format(
+																"У пользователя %s уже есть счёт в валюте: %s",
+																username,
+																account.getCurrency()
+														))
+												))
+												.switchIfEmpty(Mono.defer(() -> {
+													Account newAccount = Account.builder()
+															.clientId(client.getId())
+															.status(AccountStatus.ACTIVE)
+															.main(false)
+															.balance(0.0)
+															.currency(dto.getCurrency())
+															.build();
+													return accountRepository.save(newAccount)
+															.map(savedAccount -> ResponseEntity
+																	.status(HttpStatus.CREATED)
+																	.body(accountMapper.mapEntityToDto(savedAccount))
+															);
+												}))
+								)
+						)
+				);
 	}
 }

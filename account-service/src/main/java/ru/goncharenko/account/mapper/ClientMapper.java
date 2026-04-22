@@ -7,8 +7,9 @@ import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import ru.goncharenko.account.model.Client;
-import ru.goncharenko.bankclient.common.model.ClientDto;
-import ru.goncharenko.bankclient.common.model.ClientListDto;
+import ru.goncharenko.bankclient.common.model.client.ClientDto;
+import ru.goncharenko.bankclient.common.model.client.ClientListDto;
+import ru.goncharenko.bankclient.common.model.client.CreateClientDto;
 
 @Mapper(
 		nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
@@ -16,6 +17,8 @@ import ru.goncharenko.bankclient.common.model.ClientListDto;
 		unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public interface ClientMapper {
+	Client mapToEntity(CreateClientDto dto);
+
 	ClientDto mapToDto(Client client);
 
 	@Mapping(source = ".", target = "name", qualifiedByName = "concatName")

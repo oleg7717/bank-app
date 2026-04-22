@@ -17,9 +17,9 @@ import ru.goncharenko.account.repository.ClientRepository;
 import ru.goncharenko.bankclient.common.exception.NotFoundException;
 import ru.goncharenko.bankclient.common.exception.NotificationServiceException;
 import ru.goncharenko.bankclient.common.exception.ValidationException;
-import ru.goncharenko.bankclient.common.model.ClientDto;
-import ru.goncharenko.bankclient.common.model.ClientListDto;
-import ru.goncharenko.bankclient.common.model.ClientModifyDto;
+import ru.goncharenko.bankclient.common.model.client.ClientDto;
+import ru.goncharenko.bankclient.common.model.client.ClientListDto;
+import ru.goncharenko.bankclient.common.model.client.ClientModifyDto;
 import ru.goncharenko.bankclient.reactive.service.NotificationSendService;
 import ru.goncharenko.bankclient.reactive.utils.SecurityUtils;
 

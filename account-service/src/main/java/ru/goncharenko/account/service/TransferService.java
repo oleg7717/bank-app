@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 import ru.goncharenko.account.repository.ClientRepository;
-import ru.goncharenko.bankclient.common.model.TransferCashDto;
+import ru.goncharenko.bankclient.common.model.cashoperation.TransferCashDto;
 import ru.goncharenko.bankclient.common.response.SuccessResponse;
 
 @Service

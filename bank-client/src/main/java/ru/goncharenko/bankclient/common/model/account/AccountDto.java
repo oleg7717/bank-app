@@ -1,4 +1,4 @@
-package ru.goncharenko.bankclient.common.model;
+package ru.goncharenko.bankclient.common.model.account;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,8 +11,9 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TransferCashDto {
-	private String fromAccount;
-	private String toAccount;
-	private Double amount;
+public class AccountDto {
+	private String status;
+	private Boolean main;
+	private Double balance;
+	private String currency;
 }

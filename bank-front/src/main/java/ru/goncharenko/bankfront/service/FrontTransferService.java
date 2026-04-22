@@ -6,8 +6,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import ru.goncharenko.bankclient.web.service.RestClientService;
-import ru.goncharenko.bankclient.common.model.BalanceDto;
-import ru.goncharenko.bankclient.common.model.TransferCashDto;
+import ru.goncharenko.bankclient.common.model.cashoperation.BalanceDto;
+import ru.goncharenko.bankclient.common.model.cashoperation.TransferCashDto;
 import ru.goncharenko.bankclient.web.config.utils.SecurityUtils;
 
 import static ru.goncharenko.bankclient.common.endpoint.Endpoints.TRANSFER_BASE_URL;

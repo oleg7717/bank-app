@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
+import ru.goncharenko.account.model.enums.AccountStatus;
 
 @Table(name = "accounts")
 @Setter
@@ -20,10 +21,10 @@ public class Account {
 	private Long id;
 
 	@Column("client_id")
-	private String clientId;
+	private Long clientId;
 
 	@Column("status")
-	private String status;
+	private AccountStatus status;
 
 	@Column("main")
 	private Boolean main;
