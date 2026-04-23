@@ -3,8 +3,10 @@ package ru.goncharenko.account.repository;
 import org.springframework.data.r2dbc.repository.Modifying;
 import org.springframework.data.r2dbc.repository.Query;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.goncharenko.account.model.Client;
+import ru.goncharenko.account.model.enums.ClientStatus;
 
 import java.time.LocalDate;
 
@@ -32,4 +34,8 @@ public interface ClientRepository extends ReactiveCrudRepository<Client, Long> {
 	@Query("UPDATE clients SET balance = balance + :balance " +
 			"WHERE login = :toLogin")
 	Mono<Integer> transferCashTo(Double balance, String toLogin);
+
+	Mono<Client> findByLoginAndStatus(String login, ClientStatus status);
+
+	Flux<Client> findClientsByStatus(ClientStatus status);
 }

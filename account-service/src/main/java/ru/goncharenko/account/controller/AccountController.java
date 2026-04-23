@@ -2,6 +2,7 @@ package ru.goncharenko.account.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -52,5 +53,10 @@ public class AccountController {
 	@PostMapping
 	public Mono<ResponseEntity<AccountDto>> createAccount(@RequestBody Mono<CreateAccountDto> accountDto) {
 		return accountService.createAccount(accountDto);
+	}
+
+	@DeleteMapping("/{login}")
+	public Mono<ResponseEntity<Void>> deleteClient(@PathVariable("login") String login) {
+		return accountService.deleteClient(login);
 	}
 }
