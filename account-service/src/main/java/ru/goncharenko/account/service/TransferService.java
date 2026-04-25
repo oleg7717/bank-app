@@ -16,29 +16,31 @@ import ru.goncharenko.bankclient.common.response.SuccessResponse;
 @RequiredArgsConstructor
 public class TransferService {
 	private final ClientRepository clientRepository;
+	private final AccountService accountService;
 
 	@PreAuthorize("hasRole('transfer_cash')")
 	@Transactional
 	public Mono<ResponseEntity<SuccessResponse>> transferCash(Mono<TransferCashDto> transferCashDto) {
 		return transferCashDto.flatMap(dto -> clientRepository
 				.findByLogin(dto.getFromAccount())
-				.flatMap(account -> {
-					Double balance = account.getBalance();
-					Double amount = dto.getAmount();
-					if (balance < amount) {
-						return Mono.error(new ResponseStatusException(
-								HttpStatus.CONFLICT,
-								"Недостаточно средств на балансе"
-						));
-					}
+				.flatMap(client -> accountService.getAccountByClientIdAndCurrency(client.getId(), dto.getCurrency())
+					.flatMap(account -> {
+						Double balance = account.getBalance();
+						Double amount = dto.getAmount();
+						if (balance < amount) {
+							return Mono.error(new ResponseStatusException(
+									HttpStatus.CONFLICT,
+									"Недостаточно средств на балансе"
+							));
+						}
 
-					return Mono.zip(
-							clientRepository.transferCashFrom(dto.getAmount(), dto.getFromAccount()),
-							clientRepository.transferCashTo(dto.getAmount(), dto.getToAccount())
-					).flatMap(accountDto -> Mono.just(ResponseEntity.ok()
-							.body(new SuccessResponse(HttpStatus.OK.value(), "Перевод средств выполнен")))
-					);
-				})
+						return Mono.zip(
+								clientRepository.transferCashFrom(dto.getAmount(), dto.getFromAccount()),
+								clientRepository.transferCashTo(dto.getAmount(), dto.getToAccount())
+						).flatMap(accountDto -> Mono.just(ResponseEntity.ok()
+								.body(new SuccessResponse(HttpStatus.OK.value(), "Перевод средств выполнен")))
+						);
+					}))
 		);
 	}
 }

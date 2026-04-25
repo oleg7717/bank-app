@@ -16,8 +16,8 @@ import ru.goncharenko.account.exception.AccountAlreadyExist;
 import ru.goncharenko.account.exception.AccountException;
 import ru.goncharenko.account.mapper.AccountMapper;
 import ru.goncharenko.account.mapper.ClientMapper;
-import ru.goncharenko.account.model.Account;
-import ru.goncharenko.account.model.Client;
+import ru.goncharenko.account.model.entity.Account;
+import ru.goncharenko.account.model.entity.Client;
 import ru.goncharenko.account.model.enums.AccountStatus;
 import ru.goncharenko.account.model.enums.ClientStatus;
 import ru.goncharenko.account.repository.AccountRepository;
@@ -65,8 +65,15 @@ public class AccountService {
 				.flatMap(dto -> {
 					String login = generator.generateLogin(dto.getFirstname(), dto.getSurname());
 					return clientRepository.findByLogin(login)
-							.flatMap(existingClient ->
-									Mono.just(ResponseEntity.ok(clientMapper.mapToDto(existingClient)))
+							.flatMap(existingClient -> {
+										if (existingClient.getStatus().equals(ClientStatus.ACTIVE)) {
+											return Mono.just(ResponseEntity.ok(clientMapper.mapToDto(existingClient)));
+										} else {
+											return Mono.error(new ValidationException(
+													"Пользователь заблокирован, обратитесь в отделение банка"
+											));
+										}
+									}
 							)
 							.switchIfEmpty(
 									Mono.defer(() -> {
@@ -114,45 +121,46 @@ public class AccountService {
 	@Transactional(noRollbackFor = NotificationServiceException.class)
 	public Mono<ResponseEntity<ClientDto>> modifyPersonalData(Mono<ClientModifyDto> accountModifyDto, String login) {
 		return securityUtils.getCurrentUsername().flatMap(userName ->
-				clientRepository.findByLoginAndStatus(login, ClientStatus.ACTIVE).flatMap(account ->
-						accountModifyDto.flatMap(accountModify -> {
-									if (!Objects.equals(account.getLogin(), userName)) {
-										return Mono.error(new ResponseStatusException(
-												HttpStatus.BAD_REQUEST,
-												String.format("Пользователь %s не может менять данные другого аккаунта", userName)
-										));
-									}
-									if (accountModify.getBirthdate().until(LocalDate.now(), ChronoUnit.YEARS) < 18) {
-										return Mono.error(new ValidationException(
-												"Пользователь не может быть младше 18 лет"
-										));
-									}
+						clientRepository.findByLoginAndStatus(login, ClientStatus.ACTIVE).flatMap(account ->
+								accountModifyDto.flatMap(accountModify -> {
+											if (!Objects.equals(account.getLogin(), userName)) {
+												return Mono.error(new ResponseStatusException(
+														HttpStatus.BAD_REQUEST,
+														String.format("Пользователь %s не может менять данные другого аккаунта", userName)
+												));
+											}
+											if (accountModify.getBirthdate().until(LocalDate.now(), ChronoUnit.YEARS) < 18) {
+												return Mono.error(new ValidationException(
+														"Пользователь не может быть младше 18 лет"
+												));
+											}
 
-									return clientRepository.updateAccount(
-													accountModify.getFirstname(),
-													accountModify.getSurname(),
-													accountModify.getBirthdate(),
-													login)
-											.flatMap(updated -> clientRepository.findByLogin(login)
-													.map(clientMapper::mapToDto)
-													.flatMap(accountDto ->
-															notificationSendService.sendNotification(
-																			service,
-																			"Персональные данные обновлены успешно"
-																	)
-																	.thenReturn(ResponseEntity.ok().body(accountDto))
-																	.onErrorResume(error ->
-																			// Данные сохранены, но возвращаем ошибку уведомления
-																			Mono.error(new NotificationServiceException(
-																					"Client updated, but notification send failed"
-																			))
-																	)
-													)
-											);
-								}
+											return clientRepository.updateAccount(
+															accountModify.getFirstname(),
+															accountModify.getSurname(),
+															accountModify.getBirthdate(),
+															login)
+													.flatMap(updated -> clientRepository.findByLogin(login)
+															.map(clientMapper::mapToDto)
+															.flatMap(accountDto ->
+																	notificationSendService.sendNotification(
+																					service,
+																					"Персональные данные обновлены успешно"
+																			)
+																			.thenReturn(ResponseEntity.ok().body(accountDto))
+																			.onErrorResume(error ->
+																					// Данные сохранены, но возвращаем ошибку уведомления
+																					Mono.error(new NotificationServiceException(
+																							"Client updated, but notification send failed"
+																					))
+																			)
+															)
+													);
+										}
 
-						))
-		).switchIfEmpty(noAccount(login));
+								))
+				).switchIfEmpty(noAccount(login))
+				.as(transactionalOperator::transactional);
 	}
 
 	public Flux<ClientListDto> getClientsListForTransfer() {
@@ -192,7 +200,8 @@ public class AccountService {
 												}))
 								)
 						)
-				);
+				)
+				.as(transactionalOperator::transactional);
 	}
 
 	public Mono<ResponseEntity<Void>> deleteClient(String login) {
@@ -224,15 +233,17 @@ public class AccountService {
 																account.setStatus(AccountStatus.DISABLED);
 															}
 															return accountRepository.saveAll(accounts)
-																	.then()
-																	.thenReturn(ResponseEntity
-																			.status(HttpStatus.ACCEPTED)
-																			.body(null));
+																	.then();
 														})
+														.thenReturn(ResponseEntity.status(HttpStatus.ACCEPTED).build())
 												);
 									})
 					);
 		});
+	}
+
+	public Mono<Account> getAccountByClientIdAndCurrency(Long clientId, String currency) {
+		return accountRepository.getAccountByClientIdAndCurrency(clientId, currency);
 	}
 
 	private <T> Mono<T> noAccount(String username) {
@@ -245,11 +256,6 @@ public class AccountService {
 /*
 	переводить деньги между своими счетами с учётом конвертации в различные валюты;
 	переводить деньги на другой счёт с учётом конвертации в различные валюты.
-	списка счетов пользователя с возможностью удаления (у пользователя может быть не более одного счёта в определённой валюте);
-
-	Блок внесения и снятия виртуальных денег
-	Состоит из:
-		поля выбора счёта (обязательно);
 
 	Блок перевода между своими счетами
 	Состоит из:

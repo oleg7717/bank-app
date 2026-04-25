@@ -12,7 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import ru.goncharenko.account.mapper.ClientMapper;
-import ru.goncharenko.account.model.Client;
+import ru.goncharenko.account.model.entity.Client;
 import ru.goncharenko.account.repository.ClientRepository;
 import ru.goncharenko.bankclient.common.exception.NotFoundException;
 import ru.goncharenko.bankclient.common.exception.NotificationServiceException;
@@ -60,7 +60,6 @@ public class ClientServiceTest {
 				.firstname("Oleg")
 				.surname("Goncharenko")
 				.birthdate(LocalDate.of(1992, 4, 1))
-				.balance(1000.0)
 				.build();
 
 		testClientDto = ClientDto.builder()
@@ -68,7 +67,6 @@ public class ClientServiceTest {
 				.firstname("Oleg")
 				.surname("Goncharenko")
 				.birthdate(LocalDate.of(1992, 4, 1))
-				.balance(1000.0)
 				.build();
 
 		testClientListDto = ClientListDto.builder()
@@ -220,7 +218,6 @@ public class ClientServiceTest {
 				.login("user2")
 				.firstname("Hugh")
 				.surname("Jackman")
-				.balance(500.0)
 				.build();
 
 		when(repository.findAll()).thenReturn(Flux.just(testClient, secondClient));

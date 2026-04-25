@@ -23,6 +23,8 @@ application:
   service:
     antifraud:
       url: http://antifraud-service
+    exchange:
+      url: exchange-service
 
 server:
   port: 8085

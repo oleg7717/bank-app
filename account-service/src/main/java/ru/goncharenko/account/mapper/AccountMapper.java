@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
-import ru.goncharenko.account.model.Account;
+import ru.goncharenko.account.model.entity.Account;
 import ru.goncharenko.bankclient.common.model.account.AccountDto;
 
 @Mapper(

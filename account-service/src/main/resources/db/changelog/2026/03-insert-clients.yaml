@@ -11,6 +11,9 @@ databaseChangeLog:
                   name: login
                   value: o.goncharenko
               - column:
+                  name: status
+                  value: ACTIVE
+              - column:
                   name: firstname
                   value: Oleg
               - column:
@@ -19,9 +22,6 @@ databaseChangeLog:
               - column:
                   name: birthdate
                   valueDate: "1992-04-01"
-              - column:
-                  name: balance
-                  valueNumeric: 273861.17
         - insert:
             schemaName: account
             tableName: clients
@@ -29,6 +29,9 @@ databaseChangeLog:
               - column:
                   name: login
                   value: e.lilly
+              - column:
+                  name: status
+                  value: ACTIVE
               - column:
                   name: firstname
                   value: Evangeline
@@ -38,9 +41,6 @@ databaseChangeLog:
               - column:
                   name: birthdate
                   valueDate: "1979-08-03"
-              - column:
-                  name: balance
-                  valueNumeric: 124567.89
         - insert:
             schemaName: account
             tableName: clients
@@ -48,6 +48,9 @@ databaseChangeLog:
               - column:
                   name: login
                   value: h.jackman
+              - column:
+                  name: status
+                  value: ACTIVE
               - column:
                   name: firstname
                   value: Hugh
@@ -57,6 +60,3 @@ databaseChangeLog:
               - column:
                   name: birthdate
                   valueDate: "1968-10-12"
-              - column:
-                  name: balance
-                  valueNumeric: 345678.50

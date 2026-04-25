@@ -49,6 +49,9 @@ databaseChangeLog:
             onDelete: CASCADE
             onUpdate: RESTRICT
 
+        - sql:
+            sql: ALTER TABLE account.clients ADD CONSTRAINT balance_non_negative CHECK (balance >= 0)
+
   - changeSet:
       id: add-indexes-accounts
       author: o.goncharenko

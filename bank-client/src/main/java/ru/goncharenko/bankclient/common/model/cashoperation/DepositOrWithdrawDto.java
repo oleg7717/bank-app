@@ -14,6 +14,8 @@ import ru.goncharenko.bankclient.common.enums.CashAction;
 @AllArgsConstructor
 public class DepositOrWithdrawDto {
 	private String login;
+	@Builder.Default
+	private String currency = "RUB";
 	private Double amount;
 	private CashAction action;
 }

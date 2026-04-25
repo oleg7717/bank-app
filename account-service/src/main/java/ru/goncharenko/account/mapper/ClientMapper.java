@@ -6,7 +6,7 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
-import ru.goncharenko.account.model.Client;
+import ru.goncharenko.account.model.entity.Client;
 import ru.goncharenko.bankclient.common.model.client.ClientDto;
 import ru.goncharenko.bankclient.common.model.client.ClientListDto;
 import ru.goncharenko.bankclient.common.model.client.CreateClientDto;

@@ -14,5 +14,6 @@ import lombok.Setter;
 public class TransferCashDto {
 	private String fromAccount;
 	private String toAccount;
+	private String currency;
 	private Double amount;
 }

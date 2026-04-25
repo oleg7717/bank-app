@@ -40,11 +40,6 @@ databaseChangeLog:
                 type: date
                 constraints:
                   nullable: false
-            - column:
-                name: balance
-                type: double precision
-                constraints:
-                  nullable: false
 
       - sql:
           sql: ALTER TABLE account.clients ADD CONSTRAINT balance_non_negative CHECK (balance >= 0)
