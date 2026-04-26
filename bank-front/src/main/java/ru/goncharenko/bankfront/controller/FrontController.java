@@ -52,12 +52,21 @@ public class FrontController {
 	}
 
 	@PostMapping("/transfer")
-	public ModelAndView transfer(
+	public ModelAndView transferBetweenClientAccounts(
 			@RequestParam("value") int value,
 			@RequestParam("login") String toAccount,
 			@RequestParam("fromCurrency") String fromCurrency,
 			@RequestParam("toCurrency") String toCurrency) {
-		var dto = mapper.transferCashDto(toAccount, fromCurrency, toCurrency, value);
-		return refreshService.refreshPage(transferService::transferCash, dto, BalanceDto.class);
+		var dto = mapper.transferBetweenClientsAccountsDto(toAccount, fromCurrency, toCurrency, value);
+		return refreshService.refreshPage(transferService::transferBetweenClientAccounts, dto, BalanceDto.class);
+	}
+
+	@PostMapping("/transfer")
+	public ModelAndView transferBetweenOwnAccounts(
+			@RequestParam("value") int value,
+			@RequestParam("fromCurrency") String fromCurrency,
+			@RequestParam("toCurrency") String toCurrency) {
+		var dto = mapper.transferCashBetweenOwnAccountsDto(fromCurrency, toCurrency, value);
+		return refreshService.refreshPage(transferService::transferBetweenOwnAccounts, dto, BalanceDto.class);
 	}
 }
