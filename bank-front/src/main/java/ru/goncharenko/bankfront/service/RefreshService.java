@@ -16,6 +16,7 @@ import java.util.function.BiConsumer;
 @RequiredArgsConstructor
 public class RefreshService {
 	private final FrontAccountService accountService;
+	private final FrontCurrencyRateService frontCurrencyRateService;
 
 	public <T, R> ModelAndView refreshPage(BiConsumer<T, R> consumer, T param1, R param2) {
 		List<String> errors = new ArrayList<>();
@@ -50,6 +51,8 @@ public class RefreshService {
 		} catch (RestClientException ex) {
 			errors.add(ex.getMessage());
 		}
+
+		var currencyRates = frontCurrencyRateService.getCurrencyRates();
 
 		return fillModel(account, accountList, errors);
 	}

@@ -69,4 +69,9 @@ public class FrontController {
 		var dto = mapper.transferCashBetweenOwnAccountsDto(fromCurrency, toCurrency, value);
 		return refreshService.refreshPage(transferService::transferBetweenOwnAccounts, dto, BalanceDto.class);
 	}
+
+	@PostMapping("/rates")
+	public ModelAndView getCurrencyRates() {
+		return refreshService.getPageData();
+	}
 }

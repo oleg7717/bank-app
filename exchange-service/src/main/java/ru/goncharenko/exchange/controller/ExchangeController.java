@@ -2,14 +2,18 @@ package ru.goncharenko.exchange.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.goncharenko.bankclient.common.model.CurrencyRateDto;
+import ru.goncharenko.bankclient.common.model.CurrencyOperationRateDto;
 import ru.goncharenko.bankclient.common.request.ConversionRequestDto;
 import ru.goncharenko.bankclient.common.response.ConversionResponseDto;
 import ru.goncharenko.exchange.service.ExchangeService;
+
+import java.util.List;
 
 import static ru.goncharenko.bankclient.common.endpoint.Endpoints.*;
 
@@ -22,6 +26,11 @@ public class ExchangeController {
 	@PostMapping(CONVERT)
 	public ConversionResponseDto convert(@RequestBody @Valid ConversionRequestDto conversionRequest) {
 		return service.convert(conversionRequest);
+	}
+
+	@GetMapping(RATES)
+	public List<CurrencyOperationRateDto> getRates() {
+		return service.getRates();
 	}
 
 	@PostMapping(RATES)

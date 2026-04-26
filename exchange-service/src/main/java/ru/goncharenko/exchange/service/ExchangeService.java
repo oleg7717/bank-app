@@ -8,7 +8,10 @@ import ru.goncharenko.bankclient.common.response.ConversionResponseDto;
 import ru.goncharenko.exchange.mapper.CurrencyRateMapper;
 import ru.goncharenko.exchange.model.CurrencyRate;
 import ru.goncharenko.bankclient.common.model.CurrencyRateDto;
+import ru.goncharenko.bankclient.common.model.CurrencyOperationRateDto;
 import ru.goncharenko.exchange.repository.CurrencyRateRepository;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -33,6 +36,17 @@ public class ExchangeService {
 				.originalAmount(amount)
 				.convertedAmount(convertedAmount)
 				.build();
+	}
+
+	public List<CurrencyOperationRateDto> getRates() {
+		return repository.findAllByFromCurrency("RUB").stream().map(rate -> {
+			double exchange = 1 / rate.getRate();
+			return CurrencyOperationRateDto.builder()
+					.currency(rate.getToCurrency())
+					.buy(exchange - (exchange * 0.05))
+					.sell(exchange + (exchange * 0.05))
+					.build();
+		}).toList();
 	}
 
 	public void createOrUpdateRates(CurrencyRateDto rateDto) {

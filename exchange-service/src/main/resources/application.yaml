@@ -19,10 +19,5 @@ eureka:
     lease-renewal-interval-in-seconds: 10  # Уменьшите для отладки
     lease-expiration-duration-in-seconds: 30
 
-#application:
-#  service:
-#    antifraud:
-#      url: http://antifraud-service
-
 server:
   port: 8086
