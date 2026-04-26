@@ -1,6 +1,5 @@
 package ru.goncharenko.account.utils;
 
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import ru.goncharenko.bankclient.common.exception.NotFoundException;
 

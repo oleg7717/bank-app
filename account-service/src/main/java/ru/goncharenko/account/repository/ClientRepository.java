@@ -20,21 +20,6 @@ public interface ClientRepository extends ReactiveCrudRepository<Client, Long> {
 			"WHERE login = :login")
 	Mono<Integer> updateAccount(String firstname, String surname, LocalDate birthdate, String login);
 
-	@Modifying
-	@Query("UPDATE clients SET balance = COALESCE(:balance, balance) " +
-			"WHERE login = :login")
-	Mono<Integer> updateBalance(Double balance, String login);
-
-	@Modifying
-	@Query("UPDATE clients SET balance = balance - :balance " +
-			"WHERE login = :fromLogin")
-	Mono<Integer> transferCashFrom(Double balance, String fromLogin);
-
-	@Modifying
-	@Query("UPDATE clients SET balance = balance + :balance " +
-			"WHERE login = :toLogin")
-	Mono<Integer> transferCashTo(Double balance, String toLogin);
-
 	Mono<Client> findByLoginAndStatus(String login, ClientStatus status);
 
 	Flux<Client> findClientsByStatus(ClientStatus status);

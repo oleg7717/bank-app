@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
+import ru.goncharenko.account.model.enums.ClientStatus;
 import ru.goncharenko.account.repository.ClientRepository;
+import ru.goncharenko.account.utils.CommonLogic;
 import ru.goncharenko.bankclient.common.model.cashoperation.TransferCashDto;
 import ru.goncharenko.bankclient.common.response.SuccessResponse;
 
@@ -22,7 +24,8 @@ public class TransferService {
 	@Transactional
 	public Mono<ResponseEntity<SuccessResponse>> transferCash(Mono<TransferCashDto> transferCashDto) {
 		return transferCashDto.flatMap(dto -> clientRepository
-				.findByLogin(dto.getFromAccount())
+				.findByLoginAndStatus(dto.getFromAccount(), ClientStatus.ACTIVE)
+				.switchIfEmpty(CommonLogic.noAccount(dto.getFromAccount()))
 				.flatMap(client -> accountService.getAccountByClientIdAndCurrency(client.getId(), dto.getCurrency())
 					.flatMap(account -> {
 						Double balance = account.getBalance();
@@ -35,8 +38,8 @@ public class TransferService {
 						}
 
 						return Mono.zip(
-								clientRepository.transferCashFrom(dto.getAmount(), dto.getFromAccount()),
-								clientRepository.transferCashTo(dto.getAmount(), dto.getToAccount())
+								accountService.transferCashFrom(dto.getAmount(), dto.getFromAccount(), dto.getCurrency()),
+								accountService.transferCashTo(dto.getAmount(), dto.getToAccount(), dto.getCurrency())
 						).flatMap(accountDto -> Mono.just(ResponseEntity.ok()
 								.body(new SuccessResponse(HttpStatus.OK.value(), "Перевод средств выполнен")))
 						);

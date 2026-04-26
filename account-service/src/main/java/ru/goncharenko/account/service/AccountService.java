@@ -1,9 +1,7 @@
 package ru.goncharenko.account.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -36,10 +34,6 @@ public class AccountService {
 
 	private final TransactionalOperator transactionalOperator;
 	private final SecurityUtils securityUtils;
-
-	public Flux<ClientListDto> getClientAccountListForTransfer() {
-		return clientRepository.findClientsByStatus(ClientStatus.ACTIVE).map(clientMapper::mapToList);
-	}
 
 	public Mono<ResponseEntity<AccountDto>> createAccount(Mono<CreateAccountDto> accountDto) {
 		return securityUtils.getCurrentUsername()
@@ -78,8 +72,24 @@ public class AccountService {
 				.as(transactionalOperator::transactional);
 	}
 
+	public Flux<ClientListDto> getClientAccountListForTransfer() {
+		return clientRepository.findClientsByStatus(ClientStatus.ACTIVE).map(clientMapper::mapToList);
+	}
+
 	public Mono<Account> getAccountByClientIdAndCurrency(Long clientId, String currency) {
 		return accountRepository.getAccountByClientIdAndCurrency(clientId, currency);
+	}
+
+	public Mono<Integer> updateBalance(Double changedBalance, String login, String currency) {
+		return accountRepository.updateBalance(changedBalance, login, currency);
+	}
+
+	public Mono<Integer> transferCashFrom(Double changedBalance, String login, String currency) {
+		return accountRepository.transferCashFrom(changedBalance, login, currency);
+	}
+
+	public Mono<Integer> transferCashTo(Double changedBalance, String login, String currency) {
+		return accountRepository.transferCashTo(changedBalance, login, currency);
 	}
 
 /*

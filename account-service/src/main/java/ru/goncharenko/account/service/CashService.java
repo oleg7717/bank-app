@@ -9,7 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 import ru.goncharenko.account.model.entity.Account;
+import ru.goncharenko.account.model.enums.ClientStatus;
 import ru.goncharenko.account.repository.ClientRepository;
+import ru.goncharenko.account.utils.CommonLogic;
 import ru.goncharenko.bankclient.common.model.cashoperation.BalanceDto;
 import ru.goncharenko.bankclient.common.model.cashoperation.DepositOrWithdrawDto;
 
@@ -26,7 +28,8 @@ public class CashService {
 	@Transactional
 	public Mono<ResponseEntity<BalanceDto>> depositOrWithdraw(Mono<DepositOrWithdrawDto> depositOrWithdrawDto) {
 		return depositOrWithdrawDto.flatMap(dto -> clientRepository
-				.findByLogin(dto.getLogin())
+				.findByLoginAndStatus(dto.getLogin(), ClientStatus.ACTIVE)
+				.switchIfEmpty(CommonLogic.noAccount(dto.getLogin()))
 				.flatMap(client -> accountService.getAccountByClientIdAndCurrency(client.getId(), dto.getCurrency())
 						.flatMap(account -> {
 							String login = dto.getLogin();
@@ -44,7 +47,7 @@ public class CashService {
 							}
 
 							Double changedBalance = account.getBalance();
-							return clientRepository.updateBalance(changedBalance, login)
+							return accountService.updateBalance(changedBalance, login, dto.getCurrency())
 									.flatMap(accountDto -> Mono.just(ResponseEntity.ok()
 											.body(new BalanceDto(changedBalance)))
 									);
