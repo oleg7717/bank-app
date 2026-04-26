@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 import ru.goncharenko.account.service.TransferService;
 import ru.goncharenko.bankclient.common.model.cashoperation.TransferBetweenAccountsDto;
+import ru.goncharenko.bankclient.common.model.cashoperation.TransferBetweenOwnAccountsDto;
 import ru.goncharenko.bankclient.common.response.SuccessResponse;
 
-import static ru.goncharenko.bankclient.common.endpoint.Endpoints.ACCOUNT_BASE_URL;
-import static ru.goncharenko.bankclient.common.endpoint.Endpoints.TRANSFER;
+import static ru.goncharenko.bankclient.common.endpoint.Endpoints.*;
 
 @RestController
 @RequestMapping(ACCOUNT_BASE_URL)
@@ -21,7 +21,12 @@ public class TransferController {
 	private final TransferService service;
 
 	@PostMapping(TRANSFER)
-	public Mono<ResponseEntity<SuccessResponse>>transferCash(@RequestBody Mono<TransferBetweenAccountsDto> transferCashDto) {
-		return service.transferCash(transferCashDto);
+	public Mono<ResponseEntity<SuccessResponse>>transferBetweenClientAccounts(@RequestBody Mono<TransferBetweenAccountsDto> transferCashDto) {
+		return service.transferBetweenClientAccounts(transferCashDto);
+	}
+
+	@PostMapping(OWN_TRANSFER)
+	public Mono<ResponseEntity<SuccessResponse>>transferBetweenOwnAccounts(@RequestBody Mono<TransferBetweenOwnAccountsDto> transferCashDto) {
+		return service.transferBetweenOwnAccounts(transferCashDto);
 	}
 }

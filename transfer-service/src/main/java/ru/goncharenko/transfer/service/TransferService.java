@@ -5,9 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import ru.goncharenko.bankclient.common.mapper.TransferCashMapper;
-import ru.goncharenko.bankclient.common.model.cashoperation.TransferBetweenAccountsFrontDto;
-import ru.goncharenko.bankclient.common.model.cashoperation.TransferBetweenOwnAccountsFrontDto;
+import ru.goncharenko.bankclient.common.model.cashoperation.TransferBetweenAccountsDto;
+import ru.goncharenko.bankclient.common.model.cashoperation.TransferBetweenOwnAccountsDto;
 import ru.goncharenko.bankclient.common.request.ConversionRequestDto;
 import ru.goncharenko.bankclient.common.response.SuccessResponse;
 import ru.goncharenko.bankclient.reactive.service.AntifraudSendService;
@@ -26,7 +25,6 @@ public class TransferService {
 	private final ExchangeSendService exchangeSendService;
 	private final NotificationSendService notificationSendService;
 	private final AntifraudSendService antifraudSendService;
-	private final TransferCashMapper transferCashMapper;
 	private final SecurityUtils securityUtils;
 
 	@Value("${spring.application.name}")
@@ -35,7 +33,7 @@ public class TransferService {
 	@Value("${application.service.account.url:http//account-service}")
 	private String accountUrl;
 
-	public Mono<SuccessResponse> transferBetweenClients(TransferBetweenAccountsFrontDto dto) {
+	public Mono<SuccessResponse> transferBetweenClients(TransferBetweenAccountsDto dto) {
 		return securityUtils.getAuthorize(service)
 				.flatMap(antifraudSendService.makeFraudCheck(service, dto))
 				.flatMap(client -> {
@@ -50,7 +48,7 @@ public class TransferService {
 							dto.setAmount(conversionResponse.getConvertedAmount());
 							return webClientService.postForObject(accountUrl + ACCOUNT_BASE_URL + TRANSFER,
 									service,
-									transferCashMapper.mapFromFrontDtoToAccount(dto),
+									dto,
 									SuccessResponse.class
 							);
 						}
@@ -64,7 +62,7 @@ public class TransferService {
 				);
 	}
 
-	public Mono<SuccessResponse> transferBetweenOwnAccounts(TransferBetweenOwnAccountsFrontDto dto) {
+	public Mono<SuccessResponse> transferBetweenOwnAccounts(TransferBetweenOwnAccountsDto dto) {
 		return securityUtils.getAuthorize(service)
 				.flatMap(antifraudSendService.makeFraudCheck(service, dto))
 				.flatMap(client -> {
@@ -79,7 +77,7 @@ public class TransferService {
 							dto.setAmount(conversionResponse.getConvertedAmount());
 							return webClientService.postForObject(accountUrl + ACCOUNT_BASE_URL + OWN_TRANSFER,
 									service,
-									transferCashMapper.mapFromFrontDtoToAccount(dto),
+									dto,
 									SuccessResponse.class
 							);
 						}

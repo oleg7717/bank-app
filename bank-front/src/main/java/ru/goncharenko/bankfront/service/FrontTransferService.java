@@ -5,9 +5,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
-import ru.goncharenko.bankclient.common.model.cashoperation.TransferBetweenOwnAccountsFrontDto;
+import ru.goncharenko.bankclient.common.model.cashoperation.TransferBetweenAccountsDto;
+import ru.goncharenko.bankclient.common.model.cashoperation.TransferBetweenOwnAccountsDto;
 import ru.goncharenko.bankclient.web.service.RestClientService;
-import ru.goncharenko.bankclient.common.model.cashoperation.TransferBetweenAccountsFrontDto;
 
 import static ru.goncharenko.bankclient.common.endpoint.Endpoints.*;
 
@@ -24,7 +24,7 @@ public class FrontTransferService {
 	}
 
 	@PreAuthorize("hasRole('transfer_cash')")
-	public void transferBetweenClientAccounts(TransferBetweenAccountsFrontDto dto, Class<?> responseClass) {
+	public void transferBetweenClientAccounts(TransferBetweenAccountsDto dto, Class<?> responseClass) {
 		try {
 			restClient.postForObject(transferBaseUrl, dto, responseClass);
 		} catch (RestClientException ex) {
@@ -35,7 +35,7 @@ public class FrontTransferService {
 	}
 
 	@PreAuthorize("hasRole('transfer_cash')")
-	public void transferBetweenOwnAccounts(TransferBetweenOwnAccountsFrontDto dto, Class<?> responseClass) {
+	public void transferBetweenOwnAccounts(TransferBetweenOwnAccountsDto dto, Class<?> responseClass) {
 		try {
 			restClient.postForObject(transferBaseUrl, dto, responseClass);
 		} catch (RestClientException ex) {
