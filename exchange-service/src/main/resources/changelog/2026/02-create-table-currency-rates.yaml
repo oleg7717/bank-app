@@ -5,6 +5,7 @@ databaseChangeLog:
       changes:
         - createTable:
             tableName: currency_rates
+            tableSchema: exchange
             columns:
               - column:
                   name: id

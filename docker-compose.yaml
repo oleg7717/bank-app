@@ -48,6 +48,21 @@ services:
     networks:
       - app-network
 
+  exchange-db:
+    image: postgres:15-alpine
+    container_name: exchange-db
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - exchange_db_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
   notification-db:
     image: postgres:15-alpine
     container_name: notification-db
@@ -246,6 +261,80 @@ services:
       #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8090/realms/master
     depends_on:
       notification-db:
+        condition: service_started
+      discovery-server:
+        condition: service_started
+    networks:
+      - app-network
+
+  antifraud-service:
+    build: ./antifraud-service
+    image: antifraud-service:latest
+    container_name: antifraud-service
+    restart: no
+    ports:
+      - "8085:8085"
+      - "5010:5010"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5010
+      # Настройки клиентского сервиса для получения токенов из keycloak
+      #SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_MARKET_CLIENT_ID: ${MARKET_CLIENT_ID}
+      #SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_MARKET_CLIENT_SECRET: ${MARKET_CLIENT_SECRET}
+      #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8090/realms/master
+    depends_on:
+      exchange-db:
+        condition: service_started
+      discovery-server:
+        condition: service_started
+    networks:
+      - app-network
+
+  exchange-service:
+    build: ./notification-service
+    image: exchange-service:latest
+    container_name: exchange-service
+    restart: no
+    ports:
+      - "8086:8086"
+      - "5011:5011"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5011
+      # Liquibase переменные
+      SPRING_LIQUIBASE_URL: jdbc:postgresql://exchange-db:5432/postgres?currentSchema=exchange
+      SPRING_LIQUIBASE_USERNAME: ${POSTGRES_USER}
+      SPRING_LIQUIBASE_PASSWORD: ${POSTGRES_PASSWORD}
+      # Подключение к PostgreSQL
+      SPRING_DATASOURCE_URL: r2dbc:postgresql://exchange-db:5432/postgres?currentSchema=exchange
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      # Настройки клиентского сервиса для получения токенов из keycloak
+      #SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_MARKET_CLIENT_ID: ${MARKET_CLIENT_ID}
+      #SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_MARKET_CLIENT_SECRET: ${MARKET_CLIENT_SECRET}
+      #SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_KEYCLOAK_ISSUER_URI: http://keycloak:8090/realms/master
+    depends_on:
+      exchange-db:
+        condition: service_started
+      discovery-server:
+        condition: service_started
+    networks:
+      - app-network
+
+  exchange-generator:
+    build: ./exchange-generator
+    image: exchange-generator:latest
+    container_name: exchange-generator
+    restart: no
+    ports:
+      - "8087:8087"
+      - "5012:5012"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5012
+    depends_on:
+      exchange-service:
         condition: service_started
       discovery-server:
         condition: service_started
