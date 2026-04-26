@@ -14,4 +14,5 @@ import lombok.Setter;
 public class ClientListDto {
 	private String login;
 	private String name;
+	private String currency;
 }

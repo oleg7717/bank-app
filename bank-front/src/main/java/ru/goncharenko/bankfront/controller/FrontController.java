@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import ru.goncharenko.bankclient.common.enums.CashAction;
+import ru.goncharenko.bankclient.common.model.cashoperation.BalanceDto;
+import ru.goncharenko.bankfront.mapper.RequestParamToDtoMapper;
 import ru.goncharenko.bankfront.service.FrontAccountService;
 import ru.goncharenko.bankfront.service.FrontCashService;
 import ru.goncharenko.bankfront.service.FrontTransferService;
@@ -21,6 +23,7 @@ public class FrontController {
 	private final FrontCashService cashService;
 	private final FrontTransferService transferService;
 	private final RefreshService refreshService;
+	private final RequestParamToDtoMapper mapper;
 
 	@GetMapping
 	public String index() {
@@ -42,14 +45,19 @@ public class FrontController {
 	@PostMapping("/cash")
 	public ModelAndView editCash(
 			@RequestParam("value") int value,
-			@RequestParam("action") CashAction action) {
-		return refreshService.refreshPage(cashService::depositOrWithdraw, value, action);
+			@RequestParam("action") CashAction action,
+			@RequestParam("currency") String currency) {
+		var dto = mapper.depositOrWithdrawDto(currency, value, action);
+		return refreshService.refreshPage(cashService::depositOrWithdraw, dto, BalanceDto.class);
 	}
 
 	@PostMapping("/transfer")
 	public ModelAndView transfer(
 			@RequestParam("value") int value,
-			@RequestParam("login") String login) {
-		return refreshService.refreshPage(transferService::transferCash, value, login);
+			@RequestParam("login") String toAccount,
+			@RequestParam("fromCurrency") String fromCurrency,
+			@RequestParam("toCurrency") String toCurrency) {
+		var dto = mapper.transferCashDto(toAccount, fromCurrency, toCurrency, value);
+		return refreshService.refreshPage(transferService::transferCash, dto, BalanceDto.class);
 	}
 }
