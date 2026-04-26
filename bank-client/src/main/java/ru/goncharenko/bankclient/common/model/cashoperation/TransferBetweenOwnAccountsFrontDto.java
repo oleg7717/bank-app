@@ -11,11 +11,9 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TransferCashDto {
-	private String fromAccount;
-	private String toAccount;
+public class TransferBetweenOwnAccountsFrontDto {
+	private String login;
 	private String fromCurrency;
 	private String toCurrency;
-	private String currency;
 	private Double amount;
 }

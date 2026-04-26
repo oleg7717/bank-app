@@ -6,7 +6,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import ru.goncharenko.bankclient.web.service.RestClientService;
-import ru.goncharenko.bankclient.common.model.cashoperation.TransferCashDto;
+import ru.goncharenko.bankclient.common.model.cashoperation.TransferBetweenAccountsFrontDto;
 
 import static ru.goncharenko.bankclient.common.endpoint.Endpoints.*;
 
@@ -23,9 +23,9 @@ public class FrontTransferService {
 	}
 
 	@PreAuthorize("hasRole('transfer_cash')")
-	public void transferCash(TransferCashDto transferCashDto, Class<?> responseClass) {
+	public void transferCash(TransferBetweenAccountsFrontDto transferBetweenAccountsFrontDto, Class<?> responseClass) {
 		try {
-			restClient.postForObject(transferBaseUrl, transferCashDto, responseClass);
+			restClient.postForObject(transferBaseUrl, transferBetweenAccountsFrontDto, responseClass);
 		} catch (RestClientException ex) {
 			log.error("RestClient error: {}", ex.getMessage());
 

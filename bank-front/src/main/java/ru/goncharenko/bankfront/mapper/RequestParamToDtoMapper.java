@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.goncharenko.bankclient.common.enums.CashAction;
 import ru.goncharenko.bankclient.common.model.cashoperation.DepositOrWithdrawDto;
-import ru.goncharenko.bankclient.common.model.cashoperation.TransferCashDto;
+import ru.goncharenko.bankclient.common.model.cashoperation.TransferBetweenAccountsFrontDto;
 import ru.goncharenko.bankclient.web.config.utils.SecurityUtils;
 
 @Component
@@ -22,12 +22,12 @@ public class RequestParamToDtoMapper {
 				.build();
 	}
 
-	public TransferCashDto transferCashDto(String toAccount,
-	                                       String fromCurrency,
-	                                       String toCurrency,
-	                                       int value) {
+	public TransferBetweenAccountsFrontDto transferCashDto(String toAccount,
+	                                                       String fromCurrency,
+	                                                       String toCurrency,
+	                                                       int value) {
 		String login = securityUtils.getCurrentUsername();
-		return TransferCashDto.builder()
+		return TransferBetweenAccountsFrontDto.builder()
 				.fromAccount(login)
 				.toAccount(toAccount)
 				.fromCurrency(fromCurrency)

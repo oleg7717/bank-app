@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 import ru.goncharenko.account.model.enums.ClientStatus;
 import ru.goncharenko.account.repository.ClientRepository;
 import ru.goncharenko.account.utils.CommonLogic;
-import ru.goncharenko.bankclient.common.model.cashoperation.TransferCashDto;
+import ru.goncharenko.bankclient.common.model.cashoperation.TransferBetweenAccountsDto;
 import ru.goncharenko.bankclient.common.response.SuccessResponse;
 
 @Service
@@ -22,7 +22,7 @@ public class TransferService {
 
 	@PreAuthorize("hasRole('transfer_cash')")
 	@Transactional
-	public Mono<ResponseEntity<SuccessResponse>> transferCash(Mono<TransferCashDto> transferCashDto) {
+	public Mono<ResponseEntity<SuccessResponse>> transferCash(Mono<TransferBetweenAccountsDto> transferCashDto) {
 		return transferCashDto.flatMap(dto -> clientRepository
 				.findByLoginAndStatus(dto.getFromAccount(), ClientStatus.ACTIVE)
 				.switchIfEmpty(CommonLogic.noAccount(dto.getFromAccount()))

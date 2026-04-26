@@ -16,6 +16,7 @@ public class Endpoints {
 	public static final String ACCOUNT_LIST = "/account_list";
 	public static final String CASH = "/cash";
 	public static final String TRANSFER = "/transfer";
+	public static final String OWN_TRANSFER = "/own-transfer";
 	public static final String FRAUD_CHECK = "/check";
 	public static final String CONVERT = "/convert";
 	public static final String RATES = "/rates";
