@@ -7,12 +7,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import ru.goncharenko.account.mapper.ClientMapper;
 import ru.goncharenko.account.model.entity.Client;
+import ru.goncharenko.account.model.enums.ClientStatus;
 import ru.goncharenko.account.repository.ClientRepository;
 import ru.goncharenko.bankclient.common.exception.NotFoundException;
 import ru.goncharenko.bankclient.common.exception.NotificationServiceException;
@@ -45,6 +47,9 @@ public class ClientServiceTest {
 
 	@InjectMocks
 	private AccountService accountService;
+
+	@Mock
+	private TransactionalOperator transactionalOperator;
 
 	private Client testClient;
 	private ClientDto testClientDto;
@@ -86,7 +91,7 @@ public class ClientServiceTest {
 	@Test
 	void getAccount_Success() {
 		when(securityUtils.getCurrentUsername()).thenReturn(Mono.just(TEST_LOGIN));
-		when(repository.findByLogin(TEST_LOGIN)).thenReturn(Mono.just(testClient));
+		when(repository.findByLoginAndStatus(TEST_LOGIN, ClientStatus.ACTIVE)).thenReturn(Mono.just(testClient));
 		when(clientMapper.mapToDto(testClient)).thenReturn(testClientDto);
 
 		StepVerifier.create(accountService.getClientData())
@@ -98,14 +103,14 @@ public class ClientServiceTest {
 				.verifyComplete();
 
 		verify(securityUtils).getCurrentUsername();
-		verify(repository).findByLogin(TEST_LOGIN);
+		verify(repository).findByLoginAndStatus(TEST_LOGIN, ClientStatus.ACTIVE);
 		verify(clientMapper).mapToDto(testClient);
 	}
 
 	@Test
 	void getAccount_UserNotFound_ThrowsNotFoundException() {
 		when(securityUtils.getCurrentUsername()).thenReturn(Mono.just(TEST_LOGIN));
-		when(repository.findByLogin(TEST_LOGIN)).thenReturn(Mono.empty());
+		when(repository.findByLoginAndStatus(TEST_LOGIN, ClientStatus.ACTIVE)).thenReturn(Mono.empty());
 
 		StepVerifier.create(accountService.getClientData())
 				.expectErrorMatches(throwable ->
@@ -115,13 +120,13 @@ public class ClientServiceTest {
 				.verify();
 
 		verify(securityUtils).getCurrentUsername();
-		verify(repository).findByLogin(TEST_LOGIN);
+		verify(repository).findByLoginAndStatus(TEST_LOGIN, ClientStatus.ACTIVE);
 	}
 
 	@Test
 	void getAccount_WhenUsernameIsAnonymous_ShouldReturnNotFound() {
 		when(securityUtils.getCurrentUsername()).thenReturn(Mono.just("anonymous"));
-		when(repository.findByLogin("anonymous")).thenReturn(Mono.empty());
+		when(repository.findByLoginAndStatus("anonymous", ClientStatus.ACTIVE)).thenReturn(Mono.empty());
 
 		StepVerifier.create(accountService.getClientData())
 				.expectErrorMatches(throwable ->
@@ -131,7 +136,7 @@ public class ClientServiceTest {
 				.verify();
 
 		verify(securityUtils).getCurrentUsername();
-		verify(repository).findByLogin("anonymous");
+		verify(repository).findByLoginAndStatus("anonymous", ClientStatus.ACTIVE);
 	}
 
 
@@ -144,7 +149,9 @@ public class ClientServiceTest {
 				.build();
 
 		when(securityUtils.getCurrentUsername()).thenReturn(Mono.just(TEST_LOGIN));
-		when(repository.findByLogin(TEST_LOGIN)).thenReturn(Mono.just(testClient));
+		when(repository.findByLoginAndStatus(TEST_LOGIN, ClientStatus.ACTIVE)).thenReturn(Mono.just(testClient));
+		when(transactionalOperator.transactional(any(Mono.class)))
+				.thenAnswer(invocation -> invocation.getArgument(0));
 
 		StepVerifier.create(accountService.modifyPersonalData(Mono.just(underageDto), TEST_LOGIN))
 				.expectErrorMatches(throwable ->
@@ -161,7 +168,9 @@ public class ClientServiceTest {
 	void modifyAccount_UnauthorizedUser_ThrowsResponseStatusException() {
 		String otherUser = "otherUser";
 		when(securityUtils.getCurrentUsername()).thenReturn(Mono.just(otherUser));
-		when(repository.findByLogin(TEST_LOGIN)).thenReturn(Mono.just(testClient));
+		when(repository.findByLoginAndStatus(TEST_LOGIN, ClientStatus.ACTIVE)).thenReturn(Mono.just(testClient));
+		when(transactionalOperator.transactional(any(Mono.class)))
+				.thenAnswer(invocation -> invocation.getArgument(0));
 
 		StepVerifier.create(accountService.modifyPersonalData(Mono.just(testClientModifyDto), TEST_LOGIN))
 				.expectErrorMatches(throwable ->
@@ -177,7 +186,9 @@ public class ClientServiceTest {
 	@Test
 	void modifyAccount_AccountNotFound_ThrowsNotFoundException() {
 		when(securityUtils.getCurrentUsername()).thenReturn(Mono.just(TEST_LOGIN));
-		when(repository.findByLogin(TEST_LOGIN)).thenReturn(Mono.empty());
+		when(repository.findByLoginAndStatus(TEST_LOGIN, ClientStatus.ACTIVE)).thenReturn(Mono.empty());
+		when(transactionalOperator.transactional(any(Mono.class)))
+				.thenAnswer(invocation -> invocation.getArgument(0));
 
 		StepVerifier.create(accountService.modifyPersonalData(Mono.just(testClientModifyDto), TEST_LOGIN))
 				.expectErrorMatches(throwable ->
@@ -192,11 +203,13 @@ public class ClientServiceTest {
 	@Test
 	void modifyAccount_NotificationFails_StillReturnsSuccessAndThrowsNotificationException() {
 		when(securityUtils.getCurrentUsername()).thenReturn(Mono.just(TEST_LOGIN));
-		when(repository.findByLogin(TEST_LOGIN)).thenReturn(Mono.just(testClient));
+		when(repository.findByLoginAndStatus(TEST_LOGIN, ClientStatus.ACTIVE)).thenReturn(Mono.just(testClient));
 		when(repository.updateAccount(anyString(), anyString(), any(LocalDate.class), eq(TEST_LOGIN)))
 				.thenReturn(Mono.just(1));
 		when(repository.findByLogin(TEST_LOGIN)).thenReturn(Mono.just(testClient));
 		when(clientMapper.mapToDto(testClient)).thenReturn(testClientDto);
+		when(transactionalOperator.transactional(any(Mono.class)))
+				.thenAnswer(invocation -> invocation.getArgument(0));
 
 		when(notificationSendService.sendNotification(eq(SERVICE_NAME), anyString()))
 				.thenReturn(Mono.error(new RuntimeException("Notification service down")));
@@ -220,7 +233,7 @@ public class ClientServiceTest {
 				.surname("Jackman")
 				.build();
 
-		when(repository.findAll()).thenReturn(Flux.just(testClient, secondClient));
+		when(repository.findClientsByStatus(ClientStatus.ACTIVE)).thenReturn(Flux.just(testClient, secondClient));
 		when(clientMapper.mapToList(testClient)).thenReturn(testClientListDto);
 
 		ClientListDto secondListDto = ClientListDto.builder()
@@ -234,7 +247,7 @@ public class ClientServiceTest {
 				.expectNext(secondListDto)
 				.verifyComplete();
 
-		verify(repository).findAll();
+		verify(repository).findClientsByStatus(ClientStatus.ACTIVE);
 		verify(clientMapper, times(2)).mapToList(any(Client.class));
 	}
 }
