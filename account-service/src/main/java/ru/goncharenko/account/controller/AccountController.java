@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.goncharenko.account.service.AccountService;
+import ru.goncharenko.account.service.ClientService;
 import ru.goncharenko.bankclient.common.model.account.AccountDto;
 import ru.goncharenko.bankclient.common.model.account.CreateAccountDto;
 import ru.goncharenko.bankclient.common.model.client.ClientDto;
@@ -20,34 +21,34 @@ import ru.goncharenko.bankclient.common.model.client.ClientModifyDto;
 import ru.goncharenko.bankclient.common.model.client.CreateClientDto;
 
 import static org.springframework.web.bind.annotation.RequestMethod.*;
-import static ru.goncharenko.bankclient.common.endpoint.Endpoints.ACCOUNT_BASE_URL;
-import static ru.goncharenko.bankclient.common.endpoint.Endpoints.ACCOUNT_LIST;
+import static ru.goncharenko.bankclient.common.endpoint.Endpoints.*;
 
 @RestController
 @RequestMapping(ACCOUNT_BASE_URL)
 @RequiredArgsConstructor
 public class AccountController {
+	private final ClientService clientService;
 	private final AccountService accountService;
 
 	@PostMapping
 	public Mono<ResponseEntity<ClientDto>> createClient(@RequestBody Mono<CreateClientDto> clientDto) {
-		return accountService.createClient(clientDto);
+		return clientService.createClient(clientDto);
 	}
 
 	@GetMapping
 	public Mono<ResponseEntity<ClientDto>> getClientData() {
-		return accountService.getClientData();
+		return clientService.getClientData();
 	}
 
 	@RequestMapping(method = {POST, PUT}, path = "/{login}")
 	public Mono<ResponseEntity<ClientDto>> modifyPersonalData(@RequestBody Mono<ClientModifyDto> clientDto,
 	                                                          @PathVariable("login") String login) {
-		return accountService.modifyPersonalData(clientDto, login);
+		return clientService.modifyPersonalData(clientDto, login);
 	}
 
 	@GetMapping(ACCOUNT_LIST)
 	public Flux<ClientListDto> getClientsListForTransfer() {
-		return accountService.getClientsListForTransfer();
+		return accountService.getClientAccountListForTransfer();
 	}
 
 	@PostMapping
@@ -57,6 +58,6 @@ public class AccountController {
 
 	@DeleteMapping("/{login}")
 	public Mono<ResponseEntity<Void>> deleteClient(@PathVariable("login") String login) {
-		return accountService.deleteClient(login);
+		return clientService.deleteClient(login);
 	}
 }

@@ -46,6 +46,9 @@ public class ClientServiceTest {
 	private NotificationSendService notificationSendService;
 
 	@InjectMocks
+	private ClientService clientService;
+
+	@InjectMocks
 	private AccountService accountService;
 
 	@Mock
@@ -85,7 +88,7 @@ public class ClientServiceTest {
 				.birthdate(LocalDate.of(1992, 4, 1))
 				.build();
 
-		accountService.setService(SERVICE_NAME);
+		clientService.setService(SERVICE_NAME);
 	}
 
 	@Test
@@ -94,7 +97,7 @@ public class ClientServiceTest {
 		when(repository.findByLoginAndStatus(TEST_LOGIN, ClientStatus.ACTIVE)).thenReturn(Mono.just(testClient));
 		when(clientMapper.mapToDto(testClient)).thenReturn(testClientDto);
 
-		StepVerifier.create(accountService.getClientData())
+		StepVerifier.create(clientService.getClientData())
 				.expectNextMatches(response ->
 						response.getStatusCode() == HttpStatus.OK &&
 								response.getBody() != null &&
@@ -112,7 +115,7 @@ public class ClientServiceTest {
 		when(securityUtils.getCurrentUsername()).thenReturn(Mono.just(TEST_LOGIN));
 		when(repository.findByLoginAndStatus(TEST_LOGIN, ClientStatus.ACTIVE)).thenReturn(Mono.empty());
 
-		StepVerifier.create(accountService.getClientData())
+		StepVerifier.create(clientService.getClientData())
 				.expectErrorMatches(throwable ->
 						throwable instanceof NotFoundException &&
 								throwable.getMessage().contains("нет аккаунта")
@@ -128,7 +131,7 @@ public class ClientServiceTest {
 		when(securityUtils.getCurrentUsername()).thenReturn(Mono.just("anonymous"));
 		when(repository.findByLoginAndStatus("anonymous", ClientStatus.ACTIVE)).thenReturn(Mono.empty());
 
-		StepVerifier.create(accountService.getClientData())
+		StepVerifier.create(clientService.getClientData())
 				.expectErrorMatches(throwable ->
 						throwable instanceof NotFoundException &&
 								throwable.getMessage().contains("нет аккаунта")
@@ -153,7 +156,7 @@ public class ClientServiceTest {
 		when(transactionalOperator.transactional(any(Mono.class)))
 				.thenAnswer(invocation -> invocation.getArgument(0));
 
-		StepVerifier.create(accountService.modifyPersonalData(Mono.just(underageDto), TEST_LOGIN))
+		StepVerifier.create(clientService.modifyPersonalData(Mono.just(underageDto), TEST_LOGIN))
 				.expectErrorMatches(throwable ->
 						throwable instanceof ValidationException &&
 								throwable.getMessage().contains("не может быть младше 18 лет")
@@ -172,7 +175,7 @@ public class ClientServiceTest {
 		when(transactionalOperator.transactional(any(Mono.class)))
 				.thenAnswer(invocation -> invocation.getArgument(0));
 
-		StepVerifier.create(accountService.modifyPersonalData(Mono.just(testClientModifyDto), TEST_LOGIN))
+		StepVerifier.create(clientService.modifyPersonalData(Mono.just(testClientModifyDto), TEST_LOGIN))
 				.expectErrorMatches(throwable ->
 						throwable instanceof ResponseStatusException &&
 								((ResponseStatusException) throwable).getStatusCode() == HttpStatus.BAD_REQUEST &&
@@ -190,7 +193,7 @@ public class ClientServiceTest {
 		when(transactionalOperator.transactional(any(Mono.class)))
 				.thenAnswer(invocation -> invocation.getArgument(0));
 
-		StepVerifier.create(accountService.modifyPersonalData(Mono.just(testClientModifyDto), TEST_LOGIN))
+		StepVerifier.create(clientService.modifyPersonalData(Mono.just(testClientModifyDto), TEST_LOGIN))
 				.expectErrorMatches(throwable ->
 						throwable instanceof NotFoundException &&
 								throwable.getMessage().contains("нет аккаунта")
@@ -214,7 +217,7 @@ public class ClientServiceTest {
 		when(notificationSendService.sendNotification(eq(SERVICE_NAME), anyString()))
 				.thenReturn(Mono.error(new RuntimeException("Notification service down")));
 
-		StepVerifier.create(accountService.modifyPersonalData(Mono.just(testClientModifyDto), TEST_LOGIN))
+		StepVerifier.create(clientService.modifyPersonalData(Mono.just(testClientModifyDto), TEST_LOGIN))
 				.expectErrorMatches(throwable ->
 						throwable instanceof NotificationServiceException &&
 								throwable.getMessage().contains("Client updated, but notification send failed")
@@ -242,7 +245,7 @@ public class ClientServiceTest {
 				.build();
 		when(clientMapper.mapToList(secondClient)).thenReturn(secondListDto);
 
-		StepVerifier.create(accountService.getClientsListForTransfer())
+		StepVerifier.create(accountService.getClientAccountListForTransfer())
 				.expectNext(testClientListDto)
 				.expectNext(secondListDto)
 				.verifyComplete();
