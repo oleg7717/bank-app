@@ -1,0 +1,22 @@
+replicaCount: 1
+image:
+  repository: exchange-service
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8086
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+
+config:
+  spring_profiles_active: prod
+  liquibase_schema: public
+  liquibase_default_schema: exchange

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: postgresql-statefulset
+description: PostgreSQL StatefulSet for Bank Microservices
+type: application
+version: 1.0.0
+appVersion: "15-alpine"
