@@ -1,0 +1,71 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['dev', 'staging', 'production'],
+            description: 'Target environment'
+        )
+        choice(
+            name: 'OPERATION',
+            choices: ['validate', 'build', 'test', 'deploy', 'full'],
+            description: 'Operation to perform'
+        )
+    }
+
+    environment {
+        APP_NAME = 'account-service'
+        HELM_CHART_PATH = '../bank-chart'
+    }
+
+    stages {
+        stage('Validation') {
+            when { expression { params.OPERATION in ['validate', 'full'] } }
+            steps {
+                dir(HELM_CHART_PATH) {
+                    sh 'helm lint .'
+                    sh 'helm template test . > /dev/null'
+                }
+            }
+        }
+
+        stage('Build & Test') {
+            when { expression { params.OPERATION in ['build', 'test', 'full'] } }
+            steps {
+                sh 'mvn clean package'
+                sh 'mvn test'
+                sh "docker build -t ${APP_NAME}:${BUILD_NUMBER} ."
+            }
+        }
+
+        stage('Deploy') {
+            when { expression { params.OPERATION in ['deploy', 'full'] } }
+            steps {
+                script {
+                    def namespace = "bank-${params.ENVIRONMENT}"
+                    sh """
+                        helm upgrade --install ${APP_NAME} ${HELM_CHART_PATH} \
+                            --namespace ${namespace} \
+                            --create-namespace \
+                            --set image.tag=${BUILD_NUMBER} \
+                            --set config.spring_profiles_active=${params.ENVIRONMENT} \
+                            --values ${HELM_CHART_PATH}/values-${params.ENVIRONMENT}.yaml \
+                            --wait
+                    """
+                }
+            }
+        }
+
+        stage('Post-Deploy Validation') {
+            when { expression { params.OPERATION in ['deploy', 'full'] } }
+            steps {
+                sh """
+                    kubectl get pods -l app=${APP_NAME} -n bank-${params.ENVIRONMENT}
+                    kubectl wait --for=condition=ready pod -l app=${APP_NAME} \
+                        -n bank-${params.ENVIRONMENT} --timeout=300s
+                """
+            }
+        }
+    }
+}
