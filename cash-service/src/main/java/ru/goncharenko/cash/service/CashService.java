@@ -5,8 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import ru.goncharenko.bankclient.common.model.BalanceDto;
-import ru.goncharenko.bankclient.common.model.DepositOrWithdrawDto;
+import ru.goncharenko.bankclient.common.model.cashoperation.BalanceDto;
+import ru.goncharenko.bankclient.common.model.cashoperation.DepositOrWithdrawDto;
+import ru.goncharenko.bankclient.reactive.service.AntifraudSendService;
 import ru.goncharenko.bankclient.reactive.service.NotificationSendService;
 import ru.goncharenko.bankclient.reactive.service.WebClientService;
 import ru.goncharenko.bankclient.reactive.utils.SecurityUtils;
@@ -20,6 +21,7 @@ import static ru.goncharenko.bankclient.common.endpoint.Endpoints.CASH;
 public class CashService {
 	private final WebClientService webClientService;
 	private final NotificationSendService notificationSendService;
+	private final AntifraudSendService antifraudSendService;
 	private final SecurityUtils securityUtils;
 
 	@Value("${spring.application.name}")
@@ -30,10 +32,11 @@ public class CashService {
 
 
 	public Mono<BalanceDto> depositOrWithdraw(DepositOrWithdrawDto dto) {
-		return securityUtils.getAuthorize("cash-service")
+		return securityUtils.getAuthorize(service)
+				.flatMap(antifraudSendService.makeFraudCheck(service, dto))
 				.flatMap(client ->
 						webClientService.postForObject(accountUrl + ACCOUNT_BASE_URL + CASH,
-								"cash-service",
+								service,
 								dto,
 								BalanceDto.class
 						).flatMap(resp ->

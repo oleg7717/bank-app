@@ -1,0 +1,62 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3
+      author: o.goncharenko
+      changes:
+        - insert:
+            schemaName: account
+            tableName: clients
+            columns:
+              - column:
+                  name: login
+                  value: o.goncharenko
+              - column:
+                  name: status
+                  value: ACTIVE
+              - column:
+                  name: firstname
+                  value: Oleg
+              - column:
+                  name: surname
+                  value: Goncharenko
+              - column:
+                  name: birthdate
+                  valueDate: "1992-04-01"
+        - insert:
+            schemaName: account
+            tableName: clients
+            columns:
+              - column:
+                  name: login
+                  value: e.lilly
+              - column:
+                  name: status
+                  value: ACTIVE
+              - column:
+                  name: firstname
+                  value: Evangeline
+              - column:
+                  name: surname
+                  value: Lilly
+              - column:
+                  name: birthdate
+                  valueDate: "1979-08-03"
+        - insert:
+            schemaName: account
+            tableName: clients
+            columns:
+              - column:
+                  name: login
+                  value: h.jackman
+              - column:
+                  name: status
+                  value: ACTIVE
+              - column:
+                  name: firstname
+                  value: Hugh
+              - column:
+                  name: surname
+                  value: Jackman
+              - column:
+                  name: birthdate
+                  valueDate: "1968-10-12"

@@ -8,10 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
-import ru.goncharenko.account.model.Account;
-import ru.goncharenko.account.repository.AccountRepository;
-import ru.goncharenko.bankclient.common.model.BalanceDto;
-import ru.goncharenko.bankclient.common.model.DepositOrWithdrawDto;
+import ru.goncharenko.account.model.entity.Account;
+import ru.goncharenko.account.model.enums.ClientStatus;
+import ru.goncharenko.account.repository.ClientRepository;
+import ru.goncharenko.account.utils.CommonLogic;
+import ru.goncharenko.bankclient.common.model.cashoperation.BalanceDto;
+import ru.goncharenko.bankclient.common.model.cashoperation.DepositOrWithdrawDto;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -19,34 +21,38 @@ import java.math.RoundingMode;
 @Service
 @RequiredArgsConstructor
 public class CashService {
-	private final AccountRepository accountRepository;
+	private final ClientRepository clientRepository;
+	private final AccountService accountService;
 
 	@PreAuthorize("hasRole('cash_deposit_or_withdraw')")
 	@Transactional
 	public Mono<ResponseEntity<BalanceDto>> depositOrWithdraw(Mono<DepositOrWithdrawDto> depositOrWithdrawDto) {
-		return depositOrWithdrawDto.flatMap(dto -> accountRepository
-				.findByLogin(dto.getLogin())
-				.flatMap(account -> {
-					String login = dto.getLogin();
-					Double balance = account.getBalance();
-					Double amount = dto.getBalance();
-					if (balance < amount) {
-						return Mono.error(new ResponseStatusException(
-								HttpStatus.CONFLICT,
-								"Недостаточно средств на балансе"
-						));
-					}
-					switch (dto.getAction()) {
-						case GET -> decrease(account, amount);
-						case PUT -> increase(account, amount);
-					}
+		return depositOrWithdrawDto.flatMap(dto -> clientRepository
+				.findByLoginAndStatus(dto.getLogin(), ClientStatus.ACTIVE)
+				.switchIfEmpty(CommonLogic.noAccount(dto.getLogin()))
+				.flatMap(client -> accountService.getAccountByClientIdAndCurrency(client.getId(), dto.getCurrency())
+						.flatMap(account -> {
+							String login = dto.getLogin();
+							Double balance = account.getBalance();
+							Double amount = dto.getAmount();
+							if (balance < amount) {
+								return Mono.error(new ResponseStatusException(
+										HttpStatus.CONFLICT,
+										"Недостаточно средств на балансе"
+								));
+							}
+							switch (dto.getAction()) {
+								case GET -> decrease(account, amount);
+								case PUT -> increase(account, amount);
+							}
 
-					Double changedBalance = account.getBalance();
-					return accountRepository.updateBalance(changedBalance, login)
-							.flatMap(accountDto -> Mono.just(ResponseEntity.ok()
-									.body(new BalanceDto(changedBalance)))
-							);
-				})
+							Double changedBalance = account.getBalance();
+							return accountService.updateBalance(changedBalance, login, dto.getCurrency())
+									.flatMap(accountDto -> Mono.just(ResponseEntity.ok()
+											.body(new BalanceDto(changedBalance)))
+									);
+						})
+				)
 		);
 	}
 

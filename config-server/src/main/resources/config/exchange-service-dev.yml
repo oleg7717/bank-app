@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: exchange-service
+  datasource:
+    url: jdbc:postgresql://localhost:5434/postgres?currentSchema=exchange
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    url: jdbc:postgresql://localhost:5434/postgres?currentSchema=exchange
+    user: postgres
+    password: password
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    default-schema: exchange
+    liquibase-schema: public

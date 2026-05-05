@@ -1,0 +1,50 @@
+databaseChangeLog:
+- changeSet:
+    id: 2
+    author: o.goncharenko
+    changes:
+      - createTable:
+          tableName: clients
+          schemaName: account
+          columns:
+            - column:
+                name: id
+                type: bigserial
+                constraints:
+                  primaryKey: true
+                  nullable: false
+            - column:
+                name: login
+                type: varchar(50)
+                constraints:
+                  nullable: false
+                  unique: true
+            - column:
+                name: status
+                type: varchar(10)
+                defaultValue: ACTIVE
+                constraints:
+                  nullable: false
+            - column:
+                name: firstname
+                type: varchar(50)
+                constraints:
+                  nullable: false
+            - column:
+                name: surname
+                type: varchar(50)
+                constraints:
+                  nullable: false
+            - column:
+                name: birthdate
+                type: date
+                constraints:
+                  nullable: false
+
+      - sql:
+          sql: ALTER TABLE account.clients ADD CONSTRAINT balance_non_negative CHECK (balance >= 0)
+
+    rollback:
+      - dropTable:
+          tableName: clients
+          schemaName: account

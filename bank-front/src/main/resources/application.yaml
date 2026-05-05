@@ -42,10 +42,4 @@ application:
   service:
     gateway:
       url: http://localhost:9080
-    account:
-      url: http://account-service
-    cash:
-      url: http://cash-service
-    transfer:
-      url: http://transfer-service
     postLogoutRedirectUri: http://localhost:8080/account

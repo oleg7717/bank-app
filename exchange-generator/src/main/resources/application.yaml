@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: exchange-generator
+  cloud:
+    config:
+      import-check:
+        enabled: false
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/  # Явно укажите URL
+    register-with-eureka: true
+    fetch-registry: true
+    enabled: true  # Явно включите
+  instance:
+    hostname: localhost
+    prefer-ip-address: false  # Измените на false для localhost
+    instance-id: ${spring.application.name}:${server.port}
+    lease-renewal-interval-in-seconds: 10  # Уменьшите для отладки
+    lease-expiration-duration-in-seconds: 30
+
+application:
+  currencies: [RUB, USD, CNY]
+  rate-generator:
+    milliseconds: 1000
+  service:
+    exchange:
+      url: http://exchange-service
+
+server:
+  port: 8087

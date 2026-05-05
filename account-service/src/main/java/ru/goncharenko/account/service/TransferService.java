@@ -8,37 +8,70 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
-import ru.goncharenko.account.repository.AccountRepository;
-import ru.goncharenko.bankclient.common.model.TransferCashDto;
+import ru.goncharenko.account.model.enums.ClientStatus;
+import ru.goncharenko.account.repository.ClientRepository;
+import ru.goncharenko.account.utils.CommonLogic;
+import ru.goncharenko.bankclient.common.model.cashoperation.TransferBetweenAccountsDto;
+import ru.goncharenko.bankclient.common.model.cashoperation.TransferBetweenOwnAccountsDto;
 import ru.goncharenko.bankclient.common.response.SuccessResponse;
 
 @Service
 @RequiredArgsConstructor
 public class TransferService {
-	private final AccountRepository accountRepository;
+	private final ClientRepository clientRepository;
+	private final AccountService accountService;
 
 	@PreAuthorize("hasRole('transfer_cash')")
 	@Transactional
-	public Mono<ResponseEntity<SuccessResponse>> transferCash(Mono<TransferCashDto> transferCashDto) {
-		return transferCashDto.flatMap(dto -> accountRepository
-				.findByLogin(dto.getFromAccount())
-				.flatMap(account -> {
-					Double balance = account.getBalance();
-					Double amount = dto.getAmount();
-					if (balance < amount) {
-						return Mono.error(new ResponseStatusException(
-								HttpStatus.CONFLICT,
-								"Недостаточно средств на балансе"
-						));
-					}
+	public Mono<ResponseEntity<SuccessResponse>> transferBetweenClientAccounts(Mono<TransferBetweenAccountsDto> transferCashDto) {
+		return transferCashDto.flatMap(dto -> clientRepository
+				.findByLoginAndStatus(dto.getFromAccount(), ClientStatus.ACTIVE)
+				.switchIfEmpty(CommonLogic.noAccount(dto.getFromAccount()))
+				.flatMap(client -> accountService.getAccountByClientIdAndCurrency(client.getId(), dto.getFromCurrency())
+					.flatMap(account -> {
+						Double balance = account.getBalance();
+						Double amount = dto.getAmount();
+						if (balance < amount) {
+							return Mono.error(new ResponseStatusException(
+									HttpStatus.CONFLICT,
+									"Недостаточно средств на балансе"
+							));
+						}
 
-					return Mono.zip(
-							accountRepository.transferCashFrom(dto.getAmount(), dto.getFromAccount()),
-							accountRepository.transferCashTo(dto.getAmount(), dto.getToAccount())
-					).flatMap(accountDto -> Mono.just(ResponseEntity.ok()
-							.body(new SuccessResponse(HttpStatus.OK.value(), "Перевод средств выполнен")))
-					);
-				})
+						return Mono.zip(
+								accountService.transferCashFrom(dto.getAmount(), dto.getFromAccount(), dto.getFromCurrency()),
+								accountService.transferCashTo(dto.getAmount(), dto.getToAccount(), dto.getToCurrency())
+						).flatMap(accountDto -> Mono.just(ResponseEntity.ok()
+								.body(new SuccessResponse(HttpStatus.OK.value(), "Перевод средств выполнен")))
+						);
+					}))
+		);
+	}
+
+	@PreAuthorize("hasRole('transfer_cash')")
+	@Transactional
+	public Mono<ResponseEntity<SuccessResponse>> transferBetweenOwnAccounts(Mono<TransferBetweenOwnAccountsDto> transferCashDto) {
+		return transferCashDto.flatMap(dto -> clientRepository
+				.findByLoginAndStatus(dto.getLogin(), ClientStatus.ACTIVE)
+				.switchIfEmpty(CommonLogic.noAccount(dto.getLogin()))
+				.flatMap(client -> accountService.getAccountByClientIdAndCurrency(client.getId(), dto.getFromCurrency())
+						.flatMap(account -> {
+							Double balance = account.getBalance();
+							Double amount = dto.getAmount();
+							if (balance < amount) {
+								return Mono.error(new ResponseStatusException(
+										HttpStatus.CONFLICT,
+										"Недостаточно средств на балансе"
+								));
+							}
+
+							return Mono.zip(
+									accountService.transferCashFrom(dto.getAmount(), dto.getLogin(), dto.getFromCurrency()),
+									accountService.transferCashTo(dto.getAmount(), dto.getLogin(), dto.getToCurrency())
+							).flatMap(accountDto -> Mono.just(ResponseEntity.ok()
+									.body(new SuccessResponse(HttpStatus.OK.value(), "Перевод средств выполнен")))
+							);
+						}))
 		);
 	}
 }
