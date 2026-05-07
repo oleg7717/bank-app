@@ -20,10 +20,15 @@ eureka:
     lease-renewal-interval-in-seconds: 30
     lease-expiration-duration-in-seconds: 90
 
+bootstrap:
+  servers: kafka:9092
+
 application:
   service:
     account:
       url: http://account-service
+    notification:
+      communication-method: kafka
 
 management:
   health:

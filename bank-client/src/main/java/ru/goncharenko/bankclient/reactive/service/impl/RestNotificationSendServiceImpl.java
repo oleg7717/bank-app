@@ -20,7 +20,7 @@ import static ru.goncharenko.bankclient.common.endpoint.Endpoints.NOTIFICATION_B
 @Slf4j
 @Service
 @ConditionalOnClass(WebClient.class)
-@ConditionalOnProperty(name = "${application.service.notification.communication-method}", value = "rest", matchIfMissing = true)
+@ConditionalOnProperty(name = "application.service.notification.communication-method", havingValue = "rest")
 public class RestNotificationSendServiceImpl implements NotificationSendService {
 	private final String notificationUrl;
 	private final WebClientService webClientService;
