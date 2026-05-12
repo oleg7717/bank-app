@@ -8,6 +8,8 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://keycloak:8090/realms/master
+  kafka:
+    bootstrap-servers: kafka:9092
 
 eureka:
   client:
@@ -19,9 +21,6 @@ eureka:
     prefer-ip-address: true
     lease-renewal-interval-in-seconds: 30
     lease-expiration-duration-in-seconds: 90
-
-bootstrap:
-  servers: kafka:9092
 
 application:
   service:
