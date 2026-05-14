@@ -27,18 +27,4 @@ public class ReactiveKafkaProducer<K, V> {
 	public Mono<SendResult<K, V>> send(ProducerRecord<K, V> record) {
 		return Mono.fromFuture(kafkaTemplate.send(record));
 	}
-
-/*	@Bean
-	public <T extends Serializable> ReactiveKafkaProducerTemplate<String, T> reactiveKafkaProducerTemplate() {
-		log.info("Creating ReactiveKafkaProducerTemplate bean");
-		Map<String, Object> props = new HashMap<>();
-		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-		props.put("allow.auto.create.topics", "true");
-
-		SenderOptions<String, T> senderOptions = SenderOptions.create(props);
-
-		return new ReactiveKafkaProducerTemplate<>(senderOptions);
-	}*/
 }

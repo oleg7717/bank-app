@@ -26,7 +26,7 @@ public class KafkaNotificationSendServiceImpl implements NotificationSendService
 				.created(LocalDateTime.now())
 				.build();
 
-		return producer.send("topic", notification)
+		return producer.send("notifications", service, notification)
 				.doOnError(error -> log.error("Failed to send message to Kafka", error))
 				.doOnSuccess(success -> log.info("Send operation completed"))
 				.then();
