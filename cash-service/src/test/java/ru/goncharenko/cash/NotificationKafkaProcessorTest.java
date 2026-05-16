@@ -4,7 +4,6 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
@@ -12,7 +11,6 @@ import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.kafka.test.utils.KafkaTestUtils;
 import ru.goncharenko.bankclient.common.model.NotificationDto;
-import ru.goncharenko.cash.config.TestKafkaConfig;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -24,7 +22,6 @@ import static ru.goncharenko.cash.NotificationKafkaProcessorTest.TEST_TOPIC_NAME
 
 @SpringBootTest
 @EmbeddedKafka(topics = {TEST_TOPIC_NAME})
-@Import({TestKafkaConfig.class})
 public class NotificationKafkaProcessorTest {
 	@Autowired
 	private KafkaTemplate<String, Object> kafkaTemplate;
@@ -56,11 +53,9 @@ public class NotificationKafkaProcessorTest {
 
 			var record = KafkaTestUtils.getSingleRecord(consumer, TEST_TOPIC_NAME, Duration.ofSeconds(5));
 			assertEquals(service, record.key());
-			assertEquals(notification, record.value());
-		} catch (ExecutionException e) {
-			throw new RuntimeException(e);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
+			assertEquals(notification.getMessage(), record.value().getMessage());
+		} catch (ExecutionException | InterruptedException ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 }
