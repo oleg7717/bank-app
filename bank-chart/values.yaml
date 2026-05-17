@@ -1,0 +1,115 @@
+# Global settings
+global:
+  environment: production
+  postgresql:
+    user: postgres
+    password: password
+    secretName: postgres-secret
+  keycloak:
+    admin: admin
+    adminPassword: admin123
+    realm: master
+    url: http://keycloak:8090
+
+# Service enable/disable flags
+account_service:
+  enabled: true
+cash_service:
+  enabled: true
+transfer_service:
+  enabled: true
+notification_service:
+  enabled: true
+antifraud_service:
+  enabled: true
+exchange_service:
+  enabled: true
+exchange_generator:
+  enabled: true
+bank_front:
+  enabled: true
+
+# Databases configuration
+postgresql:
+  enabled: true
+  databases:
+    account:
+      name: postgres
+      schema: account
+      size: 1Gi
+    exchange:
+      name: postgres
+      schema: exchange
+      size: 1Gi
+    notification:
+      name: postgres
+      schema: notification
+      size: 1Gi
+    keycloak:
+      name: keycloak
+      size: 1Gi
+
+redis:
+  enabled: true
+  size: 1Gi
+
+keycloak:
+  enabled: true
+
+# Kubernetes Gateway API
+gateway:
+  enabled: true
+  className: nginx
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      allowedRoutes:
+        namespaces:
+          from: All
+
+ingress:
+  enabled: true
+  host: bank.local
+  tls:
+    enabled: false
+
+# Service configuration
+services:
+  account:
+    port: 8081
+    replicas: 2
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "500m"
+  cash:
+    port: 8082
+    replicas: 2
+  transfer:
+    port: 8083
+    replicas: 2
+  notification:
+    port: 8084
+    replicas: 2
+  antifraud:
+    port: 8085
+    replicas: 2
+  exchange:
+    port: 8086
+    replicas: 2
+  exchange_generator:
+    port: 8087
+    replicas: 1
+  front:
+    port: 8080
+    replicas: 2
+
+# OAuth2 clients secrets
+oauth:
+  account_client_secret: hwpSBn4HQdeVUCqZlFr2RjF3ECggNZKV
+  cash_client_secret: xElPJbnMIzvxRInMd2d0eGa5rrQf7tvD
+  transfer_client_secret: zMZk9jsziK6IpIcOFIh5CtSPpKtKlEPp

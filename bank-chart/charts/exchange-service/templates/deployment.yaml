@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: exchange-service
+  labels:
+    app: exchange-service
+    {{- include "exchange-service.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: exchange-service
+  template:
+    metadata:
+      labels:
+        app: exchange-service
+    spec:
+      containers:
+      - name: exchange-service
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.service.port }}
+          name: http
+        - containerPort: {{ .Values.service.debugPort }}
+          name: debug
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: {{ .Values.config.spring_profiles_active }}
+        - name: JAVA_TOOL_OPTIONS
+          value: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:{{ .Values.service.debugPort }}"
+        - name: SPRING_R2DBC_URL
+          value: "r2dbc:postgresql://account-db:5432/postgres?currentSchema=account"
+        - name: SPRING_R2DBC_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secrets
+              key: postgres-user
+        - name: SPRING_R2DBC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secrets
+              key: postgres-password
+        - name: SPRING_LIQUIBASE_URL
+          value: "jdbc:postgresql://account-db:5432/postgres?currentSchema=account"
+        - name: SPRING_LIQUIBASE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secrets
+              key: postgres-user
+        - name: SPRING_LIQUIBASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secrets
+              key: postgres-password
+        - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_EXCHANGE-SERVICE_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-secrets
+              key: account-client-secret
+        envFrom:
+        - configMapRef:
+            name: {{ .Release.Name }}-config
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: {{ .Values.service.port }}
+          initialDelaySeconds: 60
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: {{ .Values.service.port }}
+          initialDelaySeconds: 30
+          periodSeconds: 5

@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "bank-chart.fullname" . }}-config
+  labels:
+    {{- include "bank-chart.labels" . | nindent 4 }}
+data:
+  application-prod.yml: |
+    spring:
+      security:
+        oauth2:
+          client:
+            provider:
+              keycloak:
+                issuer-uri: {{ .Values.global.keycloak.url }}/realms/{{ .Values.global.keycloak.realm }}
+          resourceserver:
+            jwt:
+              issuer-uri: {{ .Values.global.keycloak.url }}/realms/{{ .Values.global.keycloak.realm }}
+    
+    eureka:
+      client:
+        enabled: false
+    
+    management:
+      health:
+        discovery:
+          enabled: true
+      endpoints:
+        web:
+          exposure:
+            include: health,info

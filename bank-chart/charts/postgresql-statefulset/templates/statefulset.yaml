@@ -1,0 +1,90 @@
+{{- range $name, $config := .Values.databases }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}-db
+  labels:
+    app: postgres-{{ $name }}
+    {{- include "postgresql-statefulset.labels" $ | nindent 4 }}
+spec:
+  selector:
+    app: postgres-{{ $name }}
+  ports:
+    - port: 5432
+      targetPort: 5432
+      name: postgres
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ $name }}-db
+  labels:
+    app: postgres-{{ $name }}
+    {{- include "postgresql-statefulset.labels" $ | nindent 4 }}
+spec:
+  serviceName: {{ $name }}-db
+  replicas: {{ $.Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: postgres-{{ $name }}
+  template:
+    metadata:
+      labels:
+        app: postgres-{{ $name }}
+    spec:
+      containers:
+      - name: postgres
+        image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
+        ports:
+        - containerPort: 5432
+          name: postgres
+        env:
+        - name: POSTGRES_DB
+          value: {{ $config.name }}
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ $.Release.Name }}-secrets
+              key: postgres-user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ $.Release.Name }}-secrets
+              key: postgres-password
+        - name: PGDATA
+          value: /var/lib/postgresql/data/pgdata
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data
+        resources:
+          {{- toYaml $.Values.resources | nindent 10 }}
+        {{- if $config.schema }}
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - |
+                until pg_isready -U $(POSTGRES_USER) -d $(POSTGRES_DB); do sleep 2; done
+                psql -U $(POSTGRES_USER) -d $(POSTGRES_DB) -c "CREATE SCHEMA IF NOT EXISTS {{ $config.schema }};"
+        {{- end }}
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ $name }}-pvc
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ $.Values.persistence.size }}
+      {{- if $.Values.persistence.storageClass }}
+      storageClassName: {{ $.Values.persistence.storageClass }}
+      {{- end }}
+{{- end }}
