@@ -58,6 +58,8 @@ spec:
             secretKeyRef:
               name: {{ .Release.Name }}-secrets
               key: account-client-secret
+        - name: SPRING_KAFKA_BOOTSTRAP_SERVERRRS
+          value: "kafka:9092"
         envFrom:
         - configMapRef:
             name: {{ .Release.Name }}-config
