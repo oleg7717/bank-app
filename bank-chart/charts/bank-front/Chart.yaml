@@ -1,0 +1,6 @@
+apiVersion: v2
+name: bank-front
+description: Bank Front Helm Chart
+type: application
+version: 1.0.0
+appVersion: "latest"

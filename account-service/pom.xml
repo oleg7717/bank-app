@@ -84,6 +84,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Spring Kafka -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-kafka</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- Security extend from bank-client -->
 
         <!-- Spring Cloud Config Server extend from bank-client -->

@@ -1,0 +1,30 @@
+replicaCount: 1
+image:
+  repository: postgres
+  tag: 15-alpine
+  pullPolicy: IfNotPresent
+
+databases:
+  account:
+    name: postgres
+    schema: account
+  exchange:
+    name: postgres
+    schema: exchange
+  notification:
+    name: postgres
+    schema: notification
+  keycloak:
+    name: keycloak
+
+persistence:
+  size: 1Gi
+  storageClass: ""
+
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
