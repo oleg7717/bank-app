@@ -56,6 +56,20 @@
             <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
 
+        <!-- Micrometer Tracing Bridge -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Zipkin -->
+        <dependency>
+            <groupId>io.zipkin.reporter2</groupId>
+            <artifactId>zipkin-reporter-brave</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
         <!-- Spring Boot Security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
