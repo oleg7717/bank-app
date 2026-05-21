@@ -28,6 +28,10 @@ management:
   tracing:
     sampling:
       probability: 1
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
 
 eureka:
   client:
