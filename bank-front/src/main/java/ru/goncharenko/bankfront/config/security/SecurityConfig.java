@@ -51,7 +51,7 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) {
 		return http
 				.authorizeHttpRequests(authorize -> authorize
-						.requestMatchers("/oauth2/**", "/login/**", "/logout/**").permitAll()
+						.requestMatchers("/oauth2/**", "/login/**", "/logout/**", "/actuator/**").permitAll()
 						.requestMatchers("/account/**").authenticated()
 						.anyRequest().authenticated()
 				)

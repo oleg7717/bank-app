@@ -60,6 +60,10 @@ management:
   tracing:
     sampling:
       probability: 1
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
 
 server:
   port: 9080
