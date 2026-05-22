@@ -126,8 +126,20 @@ services:
     restart: always
     ports:
       - "9090:9090"
+    networks:
+      - monitoring_network
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - monitoring_network
+    depends_on:
+      - prometheus
 
   #### Security infrastructure ####
   keycloak:
@@ -322,6 +334,8 @@ networks:
   app-network:
     driver: bridge
   security-network:
+    driver: bridge
+  monitoring_network:
     driver: bridge
 
 #### Volumes ####
