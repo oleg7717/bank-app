@@ -1,5 +1,7 @@
 package ru.goncharenko.bankclient.reactive.service.impl;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,6 +29,8 @@ import static ru.goncharenko.bankclient.common.utils.WebClientUtils.throwError;
 @RequiredArgsConstructor
 @ConditionalOnClass(WebClient.class)
 public class WebClientServiceImpl implements WebClientService {
+	private final MeterRegistry meterRegistry;
+
 	@Qualifier("serviceWebClient")
 	private final WebClient webClient;
 
@@ -48,9 +52,13 @@ public class WebClientServiceImpl implements WebClientService {
 				.bodyToMono(responseType)
 				.retryWhen(Retry.backoff(maxAttempts, Duration.ofMillis(1000))
 						.filter(throwable -> throwable instanceof ReceiverUnavailableException || throwable instanceof WebClientRequestException)
-						.doAfterRetry(retrySignal ->
-								log.warn("Retry {} from total retries {}", retrySignal.totalRetriesInARow() + 1, maxAttempts)
-						)
+						.doAfterRetry(retrySignal -> {
+							log.warn("Retry {} from total retries {}", retrySignal.totalRetriesInARow() + 1, maxAttempts);
+							Counter.builder("failed_retry_count")
+									.tag("service", service)
+									.register(meterRegistry)
+									.increment();
+						})
 						.onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
 							log.error("External service failed to process after max retries: {}", maxAttempts);
 							int statusCode = HttpStatus.SERVICE_UNAVAILABLE.value();

@@ -1,5 +1,7 @@
 package ru.goncharenko.transfer.service;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +23,7 @@ public class TransferService {
 	private final WebClientService webClientService;
 	private final NotificationSendService notificationSendService;
 	private final SecurityUtils securityUtils;
+	private final MeterRegistry meterRegistry;
 
 	@Value("${spring.application.name}")
 	private String service;
@@ -32,15 +35,25 @@ public class TransferService {
 		return securityUtils.getAuthorize("transfer-service")
 				.flatMap(client ->
 						webClientService.postForObject(accountUrl + ACCOUNT_BASE_URL + TRANSFER,
-								"transfer-service",
+								service,
 								dto,
 								SuccessResponse.class
-						)
+						).doOnError(error -> {
+							log.error("Error while transfer money");
+							Counter.builder("cash_transfer_error")
+									.tag("login", dto.getFromAccount())
+									.register(meterRegistry)
+									.increment();
+						})
 				).flatMap(resp ->
 						securityUtils.getCurrentUsername().flatMap(userName -> notificationSendService
 								.sendNotification(service,
 										String.format("Перевод средств со счёта %s успешно выполнен", userName)
 								)
+								.doOnError(error -> Counter.builder("notification_send_error")
+										.tag("service", service)
+										.register(meterRegistry)
+										.increment())
 								.thenReturn(resp))
 
 				);
