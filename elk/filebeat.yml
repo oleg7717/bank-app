@@ -1,0 +1,13 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /logs/*/*.json
+      - /logs/*/*.log
+    # Явно указываем, что логи в JSON формате от Docker
+    parsers:
+      - docker:
+          format: auto
+
+output.logstash:
+  hosts: ["logstash:5044"]
