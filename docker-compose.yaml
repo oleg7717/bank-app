@@ -127,7 +127,7 @@ services:
     ports:
       - "9090:9090"
     networks:
-      - monitoring_network
+      - monitoring-network
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
 
@@ -138,7 +138,7 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - monitoring_network
+      - monitoring-network
     depends_on:
       - prometheus
 
@@ -155,7 +155,7 @@ services:
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
     networks:
-      - elk_network
+      - elk-network
 
   logstash:
     image: docker.elastic.co/logstash/logstash:8.11.0
@@ -172,7 +172,7 @@ services:
     depends_on:
       - elasticsearch
     networks:
-      - elk_network
+      - elk-network
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.11.0
@@ -185,7 +185,7 @@ services:
     depends_on:
       - elasticsearch
     networks:
-      - elk_network
+      - elk-network
 
   filebeat:
     image: docker.elastic.co/beats/filebeat:8.12.0
@@ -200,7 +200,7 @@ services:
       - ./logs:/logs
     command: [ "--strict.perms=false" ]
     networks:
-      - elk_network
+      - elk-network
 
   #### Security infrastructure ####
   keycloak:
@@ -269,6 +269,7 @@ services:
         condition: service_started
     networks:
       - app-network
+      - monitoring-network
 
   account-service:
     build: ./account-service
@@ -302,6 +303,7 @@ services:
         condition: service_started
     networks:
       - app-network
+      - monitoring-network
 
   cash-service:
     build: ./cash-service
@@ -329,6 +331,7 @@ services:
         condition: service_started
     networks:
       - app-network
+      - monitoring-network
 
   transfer-service:
     build: ./transfer-service
@@ -356,6 +359,7 @@ services:
         condition: service_started
     networks:
       - app-network
+      - monitoring-network
 
   notification-service:
     build: ./notification-service
@@ -389,6 +393,7 @@ services:
         condition: service_started
     networks:
       - app-network
+      - monitoring-network
 
 #### Networks ####
 networks:
@@ -396,9 +401,9 @@ networks:
     driver: bridge
   security-network:
     driver: bridge
-  monitoring_network:
+  monitoring-network:
     driver: bridge
-  elk_network:
+  elk-network:
     driver: bridge
 
 #### Volumes ####
