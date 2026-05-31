@@ -42,7 +42,6 @@ public class CashService {
 						).doOnError(error -> {
 							log.error("Error while deposit or withdraw money");
 							Counter.builder("cash_deposit_error")
-									.tag("login", dto.getLogin())
 									.register(meterRegistry)
 									.increment();
 						}).flatMap(resp ->

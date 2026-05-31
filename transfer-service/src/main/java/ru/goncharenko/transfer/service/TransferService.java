@@ -41,7 +41,6 @@ public class TransferService {
 						).doOnError(error -> {
 							log.error("Error while transfer money");
 							Counter.builder("cash_transfer_error")
-									.tag("login", dto.getFromAccount())
 									.register(meterRegistry)
 									.increment();
 						})
