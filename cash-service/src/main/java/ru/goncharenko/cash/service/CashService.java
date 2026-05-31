@@ -1,5 +1,8 @@
 package ru.goncharenko.cash.service;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +24,7 @@ public class CashService {
 	private final WebClientService webClientService;
 	private final NotificationSendService notificationSendService;
 	private final SecurityUtils securityUtils;
+	private final MeterRegistry meterRegistry;
 
 	@Value("${spring.application.name}")
 	private String service;
@@ -28,20 +32,35 @@ public class CashService {
 	@Value("${application.service.account.url}")
 	private String accountUrl;
 
+	private Counter depositErrorCounter;
+	private Counter notificationErrorCounter;
+
+	@PostConstruct
+	public void init() {
+		depositErrorCounter = Counter.builder("cash_deposit_error")
+				.register(meterRegistry);
+
+		notificationErrorCounter = Counter.builder("notification_send_error")
+				.tag("service", service)
+				.register(meterRegistry);
+	}
 
 	public Mono<BalanceDto> depositOrWithdraw(DepositOrWithdrawDto dto) {
 		return securityUtils.getAuthorize("cash-service")
 				.flatMap(client ->
 						webClientService.postForObject(accountUrl + ACCOUNT_BASE_URL + CASH,
-								"cash-service",
+								service,
 								dto,
 								BalanceDto.class
-						).flatMap(resp ->
+						).doOnError(error -> {
+							log.error("Error while deposit or withdraw money");
+							depositErrorCounter.increment();
+						}).flatMap(resp ->
 								securityUtils.getCurrentUsername().flatMap(userName -> notificationSendService
 										.sendNotification(
 												service,
 												String.format("Пополнение / снятие средств со счёта %s успешно выполнено", userName)
-										)
+										).doOnError(error -> notificationErrorCounter.increment())
 										.thenReturn(resp))
 						)
 				);

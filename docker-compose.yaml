@@ -113,6 +113,95 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
       DYNAMIC_CONFIG_ENABLED: true
 
+  zipkin:
+    container_name: zipkin
+    image: openzipkin/zipkin:3.5
+    restart: always
+    ports:
+      - "9411:9411"
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring-network
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    networks:
+      - monitoring-network
+    depends_on:
+      - prometheus
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: elasticsearch
+    restart: always
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - elk-network
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: logstash
+    restart: always
+    environment:
+      - LS_JAVA_OPTS=-Xms256m -Xmx256m
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
+      - ./logs:/usr/share/logstash/logs
+    ports:
+      - "5044:5044"
+      - "9600:9600"
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk-network
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: kibana
+    restart: always
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - elk-network
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.12.0
+    container_name: filebeat
+    user: root
+    depends_on:
+      - logstash
+    volumes:
+#      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+#      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./elk/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./logs:/logs
+    command: [ "--strict.perms=false" ]
+    networks:
+      - elk-network
+
   #### Security infrastructure ####
   keycloak:
     image: quay.io/keycloak/keycloak:26.1.3
@@ -176,8 +265,11 @@ services:
         condition: service_started
       discovery-server:
         condition: service_started
+      zipkin:
+        condition: service_started
     networks:
       - app-network
+      - monitoring-network
 
   account-service:
     build: ./account-service
@@ -207,8 +299,11 @@ services:
         condition: service_started
       discovery-server:
         condition: service_started
+      zipkin:
+        condition: service_started
     networks:
       - app-network
+      - monitoring-network
 
   cash-service:
     build: ./cash-service
@@ -232,8 +327,11 @@ services:
         condition: service_started
       discovery-server:
         condition: service_started
+      zipkin:
+        condition: service_started
     networks:
       - app-network
+      - monitoring-network
 
   transfer-service:
     build: ./transfer-service
@@ -257,8 +355,11 @@ services:
         condition: service_started
       discovery-server:
         condition: service_started
+      zipkin:
+        condition: service_started
     networks:
       - app-network
+      - monitoring-network
 
   notification-service:
     build: ./notification-service
@@ -288,14 +389,21 @@ services:
         condition: service_started
       discovery-server:
         condition: service_started
+      zipkin:
+        condition: service_started
     networks:
       - app-network
+      - monitoring-network
 
 #### Networks ####
 networks:
   app-network:
     driver: bridge
   security-network:
+    driver: bridge
+  monitoring-network:
+    driver: bridge
+  elk-network:
     driver: bridge
 
 #### Volumes ####
@@ -304,3 +412,5 @@ volumes:
   redis_data:
   postgres_keycloak_data:
   notification_db_data:
+  elasticsearch_data:
+    driver: local

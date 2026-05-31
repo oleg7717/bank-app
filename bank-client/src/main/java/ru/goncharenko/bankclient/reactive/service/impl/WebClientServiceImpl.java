@@ -1,5 +1,7 @@
 package ru.goncharenko.bankclient.reactive.service.impl;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,6 +20,8 @@ import ru.goncharenko.bankclient.common.utils.WebClientUtils;
 import ru.goncharenko.bankclient.reactive.service.WebClientService;
 
 import java.time.Duration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.springframework.security.oauth2.client.web.ClientAttributes.clientRegistrationId;
 import static ru.goncharenko.bankclient.common.utils.WebClientUtils.throwError;
@@ -27,11 +31,21 @@ import static ru.goncharenko.bankclient.common.utils.WebClientUtils.throwError;
 @RequiredArgsConstructor
 @ConditionalOnClass(WebClient.class)
 public class WebClientServiceImpl implements WebClientService {
+	private final MeterRegistry meterRegistry;
+
 	@Qualifier("serviceWebClient")
 	private final WebClient webClient;
 
+	private final Map<String, Counter> retryCounters = new ConcurrentHashMap<>();
+
 	public <T, R> Mono<T> postForObject(String url, String service, R requestBody, Class<T> responseType) {
 		int maxAttempts = 5;
+		Counter retryCounter = retryCounters.computeIfAbsent(service,
+				s -> Counter.builder("failed_retry_count")
+						.tag("service", s)
+						.register(meterRegistry)
+		);
+
 		return webClient.post()
 				.uri(url)
 				.attributes(clientRegistrationId(service))
@@ -48,9 +62,10 @@ public class WebClientServiceImpl implements WebClientService {
 				.bodyToMono(responseType)
 				.retryWhen(Retry.backoff(maxAttempts, Duration.ofMillis(1000))
 						.filter(throwable -> throwable instanceof ReceiverUnavailableException || throwable instanceof WebClientRequestException)
-						.doAfterRetry(retrySignal ->
-								log.warn("Retry {} from total retries {}", retrySignal.totalRetriesInARow() + 1, maxAttempts)
-						)
+						.doAfterRetry(retrySignal -> {
+							log.warn("Retry {} from total retries {}", retrySignal.totalRetriesInARow() + 1, maxAttempts);
+							retryCounter.increment();
+						})
 						.onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
 							log.error("External service failed to process after max retries: {}", maxAttempts);
 							int statusCode = HttpStatus.SERVICE_UNAVAILABLE.value();

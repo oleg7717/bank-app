@@ -53,6 +53,18 @@ spring:
               args:
                 parts: 1
 
+management:
+  zipkin:
+    tracing:
+      endpoint:  ${MANAGEMENT_ZIPKIN_TRACING_ENDPOINT:http://localhost:9411/api/v2/spans}
+  tracing:
+    sampling:
+      probability: 1
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
 server:
   port: 9080
 
