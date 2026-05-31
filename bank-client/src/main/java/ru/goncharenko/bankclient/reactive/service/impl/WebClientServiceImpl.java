@@ -20,6 +20,8 @@ import ru.goncharenko.bankclient.common.utils.WebClientUtils;
 import ru.goncharenko.bankclient.reactive.service.WebClientService;
 
 import java.time.Duration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.springframework.security.oauth2.client.web.ClientAttributes.clientRegistrationId;
 import static ru.goncharenko.bankclient.common.utils.WebClientUtils.throwError;
@@ -34,8 +36,16 @@ public class WebClientServiceImpl implements WebClientService {
 	@Qualifier("serviceWebClient")
 	private final WebClient webClient;
 
+	private final Map<String, Counter> retryCounters = new ConcurrentHashMap<>();
+
 	public <T, R> Mono<T> postForObject(String url, String service, R requestBody, Class<T> responseType) {
 		int maxAttempts = 5;
+		Counter retryCounter = retryCounters.computeIfAbsent(service,
+				s -> Counter.builder("failed_retry_count")
+						.tag("service", s)
+						.register(meterRegistry)
+		);
+
 		return webClient.post()
 				.uri(url)
 				.attributes(clientRegistrationId(service))
@@ -54,10 +64,7 @@ public class WebClientServiceImpl implements WebClientService {
 						.filter(throwable -> throwable instanceof ReceiverUnavailableException || throwable instanceof WebClientRequestException)
 						.doAfterRetry(retrySignal -> {
 							log.warn("Retry {} from total retries {}", retrySignal.totalRetriesInARow() + 1, maxAttempts);
-							Counter.builder("failed_retry_count")
-									.tag("service", service)
-									.register(meterRegistry)
-									.increment();
+							retryCounter.increment();
 						})
 						.onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
 							log.error("External service failed to process after max retries: {}", maxAttempts);

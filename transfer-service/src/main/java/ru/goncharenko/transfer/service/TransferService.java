@@ -2,6 +2,7 @@ package ru.goncharenko.transfer.service;
 
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +32,19 @@ public class TransferService {
 	@Value("${application.service.account.url:http//account-service}")
 	private String accountUrl;
 
+	private Counter transferErrorCounter;
+	private Counter notificationErrorCounter;
+
+	@PostConstruct
+	public void init() {
+		transferErrorCounter = Counter.builder("cash_transfer_error")
+				.register(meterRegistry);
+
+		notificationErrorCounter = Counter.builder("notification_send_error")
+				.tag("service", service)
+				.register(meterRegistry);
+	}
+
 	public Mono<SuccessResponse> transferCash(TransferCashDto dto) {
 		return securityUtils.getAuthorize("transfer-service")
 				.flatMap(client ->
@@ -40,19 +54,14 @@ public class TransferService {
 								SuccessResponse.class
 						).doOnError(error -> {
 							log.error("Error while transfer money");
-							Counter.builder("cash_transfer_error")
-									.register(meterRegistry)
-									.increment();
+							transferErrorCounter.increment();
 						})
 				).flatMap(resp ->
 						securityUtils.getCurrentUsername().flatMap(userName -> notificationSendService
 								.sendNotification(service,
 										String.format("Перевод средств со счёта %s успешно выполнен", userName)
 								)
-								.doOnError(error -> Counter.builder("notification_send_error")
-										.tag("service", service)
-										.register(meterRegistry)
-										.increment())
+								.doOnError(error -> notificationErrorCounter.increment())
 								.thenReturn(resp))
 
 				);
